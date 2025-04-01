@@ -1,1 +1,2 @@
-# Applied-Software-Dev-MIU
+# Applied Software Development at Maharishi International University
+## Lab 1a
