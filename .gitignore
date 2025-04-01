@@ -1,0 +1,33 @@
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Output/compiled classes
+/out/
+build/
+target/
+*.class
+
+# Logs and system files
+*.log
+*.DS_Store
+*.swp
+
+# OS / temp
+Thumbs.db
+.DS_Store
+ehthumbs.db
+
+# Maven / Gradle (if used later)
+.mvn/
+.gradle/
+!gradle-wrapper.jar
+
+# VSCode (if opened with VS Code later)
+.vscode/
+
+# Package managers
+node_modules/
+
