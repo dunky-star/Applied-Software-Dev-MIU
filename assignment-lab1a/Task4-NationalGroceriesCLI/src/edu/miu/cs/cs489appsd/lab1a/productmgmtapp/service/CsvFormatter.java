@@ -9,10 +9,15 @@ public final class CsvFormatter implements ProductFormatter{
     public String format(List<Product> products) {
         StringBuilder sb = new StringBuilder();
         sb.append("ProductId,Name,DateSupplied,QuantityInStock,UnitPrice\n");
-        for (Product p : products) {
-            sb.append("%d,%s,%s,%d,%.2f\n".formatted(
-                    p.productId(), p.name(), p.dateSupplied(), p.quantityInStock(), p.unitPrice()));
-        }
+
+        products.forEach(p -> sb.append("%d,%s,%s,%d,%.2f\n".formatted(
+                p.productId(),
+                p.name(),
+                p.dateSupplied(),
+                p.quantityInStock(),
+                p.unitPrice()
+        )));
+
         return sb.toString();
     }
 }

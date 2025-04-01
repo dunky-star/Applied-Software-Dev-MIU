@@ -47,7 +47,7 @@ public class ProductMgmtApp {
     }
 
     private static void printProducts(String format, ProductFormatter formatter, List<Product> products) {
-        System.out.println("== Printed in %s Format ==".formatted(format));
+        System.out.printf("== Printed in %s Format ==%n", format);
         System.out.println(formatter.format(products));
         System.out.println();
     }
