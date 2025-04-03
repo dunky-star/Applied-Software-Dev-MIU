@@ -1,14 +1,22 @@
-name: Java CI (Maven Build)
+
+name: Java CLI CI (Lab1b only)
 
 on:
   push:
-    branches: [ main ]
+    paths:
+      - 'assignment-lab1b/Lab1b-Employee-PensionPlan/**'
+      - '.github/workflows/**'
   pull_request:
-    branches: [ main ]
+    paths:
+      - 'assignment-lab1b/Lab1b-Employee-PensionPlan/**'
+      - '.github/workflows/**'
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: assignment-lab1b/Lab1b-Employee-PensionPlan
 
     steps:
     - name: Checkout repository
@@ -23,6 +31,6 @@ jobs:
     - name: Build with Maven
       run: mvn clean install
 
-    - name: Run tests (if any)
+    - name: (Optional) Run tests
       run: mvn test
 
