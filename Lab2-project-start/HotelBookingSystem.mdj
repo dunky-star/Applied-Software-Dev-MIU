@@ -627,7 +627,7 @@
 											"top": 217,
 											"width": 567.62353515625,
 											"height": 13,
-											"text": "+bookingReference: String",
+											"text": "+bookingReference: BookingReference",
 											"horizontalAlignment": 0
 										},
 										{
@@ -1647,7 +1647,7 @@
 											"top": 694,
 											"width": 169.7333984375,
 											"height": 13,
-											"text": "+id: Lomg",
+											"text": "+id: Long",
 											"horizontalAlignment": 0
 										},
 										{
@@ -2315,7 +2315,7 @@
 									"parentStyle": false,
 									"left": 351,
 									"top": 193,
-									"width": 12.65087890625,
+									"width": 13.83154296875,
 									"height": 13,
 									"alpha": -0.5235987755982988,
 									"distance": 30,
@@ -4292,7 +4292,7 @@
 								"$ref": "AAAAAAGV/qa96+7QADA="
 							},
 							"name": "bookingReference",
-							"type": "String"
+							"type": "BookingReference"
 						},
 						{
 							"_type": "UMLAttribute",
@@ -4773,7 +4773,7 @@
 								"$ref": "AAAAAAGV/qmqfe9UOFU="
 							},
 							"name": "id",
-							"type": "Lomg"
+							"type": "Long"
 						},
 						{
 							"_type": "UMLAttribute",
