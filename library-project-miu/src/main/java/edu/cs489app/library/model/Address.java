@@ -15,9 +15,13 @@ public class Address {
     private Long id;
     @Column(nullable = false)
     private String unitNo;
+    @Column(nullable = false)
     private String street;
+    @Column(nullable = false)
     private String city;
+    @Column(nullable = false)
     private String state;
+    @Column(nullable = false)
     private Integer zip;
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "address")
     private Publisher publisher;

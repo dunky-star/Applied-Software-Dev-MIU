@@ -19,7 +19,7 @@ public class Publisher {
     private String name;
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Address address;
-    @OneToMany(mappedBy = "publisher")
+    @OneToMany(mappedBy = "publisher", fetch = FetchType.LAZY)
     private List<Book> books; // Publisher -||---- <- Book
     public Publisher (String name) {
         this.name = name;
