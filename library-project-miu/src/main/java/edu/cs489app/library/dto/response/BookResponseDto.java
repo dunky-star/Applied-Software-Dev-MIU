@@ -1,5 +1,7 @@
 package edu.cs489app.library.dto.response;
 
+import java.util.List;
+
 public record BookResponseDto (
         Long id,
         String title,
@@ -8,6 +10,6 @@ public record BookResponseDto (
         Integer pageCount,
         String publishedDate,
         PublisherResponseDto publisherResponseDto,
-        AuthorResponseDto authorResponseDto
+        List<AuthorResponseDto> authorResponseDto
 ) {
 }
