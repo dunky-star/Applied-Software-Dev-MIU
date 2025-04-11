@@ -1,5 +1,6 @@
 package edu.cs489app.library.service;
 
+import edu.cs489app.library.dto.mapper.AddressMapper;
 import edu.cs489app.library.dto.mapper.PublisherMapper;
 import edu.cs489app.library.dto.request.PublisherRequestDto;
 import edu.cs489app.library.dto.response.PublisherResponseDto;
@@ -58,6 +59,27 @@ public class PublisherServiceImpl implements PublisherService{
      */
     @Override
     public Optional<PublisherResponseDto> updatePublisher(String name, PublisherRequestDto publisherDto) {
-        return Optional.empty();
+        return publisherRepository.findByNameIgnoreCase(name)
+                .map(existing -> {
+                    existing.setName(publisherDto.name());
+                    existing.setAddress(AddressMapper.toEntity(publisherDto.addressRequestDto()));
+                    Publisher updated = publisherRepository.save(existing);
+                    return PublisherMapper.toDto(updated);
+                });
     }
+
+    /**
+     * @param name
+     * @return
+     */
+    @Override
+    public Optional<PublisherResponseDto> deletePublisher(String name) {
+        return publisherRepository.findByNameIgnoreCase(name)
+                .map(existing -> {
+                    publisherRepository.deleteByName(name);
+                    return PublisherMapper.toDto(existing);
+                });
+    }
+
+
 }

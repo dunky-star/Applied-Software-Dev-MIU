@@ -37,5 +37,4 @@ public class Booking {
     private LocalDateTime createdAt; // Date of booking creation
     @Enumerated(EnumType.STRING)
     private BookingStatus bookingStatus; // e.g.: CONFIRMED, CANCELED, PENDING, CHECKED_IN, CHECKED_OUT
-
 }

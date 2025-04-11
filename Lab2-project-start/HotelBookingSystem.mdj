@@ -979,7 +979,7 @@
 											"top": 701,
 											"width": 429.82861328125,
 											"height": 13,
-											"text": "+roomNumber: String",
+											"text": "+roomNumber: Integer",
 											"horizontalAlignment": 0
 										},
 										{
@@ -997,7 +997,7 @@
 											"top": 716,
 											"width": 429.82861328125,
 											"height": 13,
-											"text": "+type: Enum",
+											"text": "+roomType: Enum",
 											"horizontalAlignment": 0
 										},
 										{
@@ -4517,7 +4517,7 @@
 								"$ref": "AAAAAAGV/qbW2u75YuY="
 							},
 							"name": "roomNumber",
-							"type": "String"
+							"type": "Integer"
 						},
 						{
 							"_type": "UMLAttribute",
@@ -4525,7 +4525,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGV/qbW2u75YuY="
 							},
-							"name": "type",
+							"name": "roomType",
 							"type": "Enum"
 						},
 						{

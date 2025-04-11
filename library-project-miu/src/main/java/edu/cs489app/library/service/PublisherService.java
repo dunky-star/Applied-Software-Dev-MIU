@@ -18,4 +18,7 @@ public interface PublisherService {
 
     // Update
     Optional<PublisherResponseDto> updatePublisher(String name, PublisherRequestDto publisherDto);
+
+    // Delete
+    Optional<PublisherResponseDto> deletePublisher(String name);
 }
