@@ -52,8 +52,6 @@ public class AuthFilter extends OncePerRequestFilter{
             log.error("Error in filter chain: {}", e.getMessage());
         }
 
-
-
     }
 
     private String getTokenFromRequest(HttpServletRequest request) {
