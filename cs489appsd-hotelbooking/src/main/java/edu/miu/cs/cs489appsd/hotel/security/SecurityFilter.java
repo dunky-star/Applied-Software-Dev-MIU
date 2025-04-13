@@ -42,9 +42,10 @@ public class SecurityFilter {
                 )
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(
-                                "/api/auth/**",
-                                "/api/rooms/**",
-                                "/api/bookings/**"
+                                "/api/v1/auth/**",
+                                "/api/v1/rooms/**",
+                                "/api/v1/bookings/**",
+                                "/api/v1/home/**"
                         ).permitAll() // Public access for these endpoints
                         .anyRequest().authenticated() // All others require auth
                 )

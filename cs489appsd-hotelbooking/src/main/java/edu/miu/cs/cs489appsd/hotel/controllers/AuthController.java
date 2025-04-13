@@ -16,13 +16,13 @@ public class AuthController {
 
     private final UserService userService;
 
-    @PostMapping() // POST /api/v1/users
+    @PostMapping() // POST /api/v1/auth
     public ResponseEntity<Response> registerUser(@Valid @RequestBody RegistrationRequest request) {
         Response response = userService.registerUser(request);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-    @PostMapping("/sessions") // POST /api/v1/users/sessions
+    @PostMapping("/sessions") // POST /api/v1/auth/sessions
     public ResponseEntity<Response> loginUser(@Valid @RequestBody LoginRequest request) {
         Response response = userService.loginUser(request);
         return ResponseEntity.status(response.getStatus()).body(response);
