@@ -18,24 +18,29 @@ public class UserController {
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Response> getAllUsers() {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.getAllUsers());
+        Response response = userService.getAllUsers();
+        return ResponseEntity.status(response.getStatus()).body(response);
     }
 
     @PutMapping
     public ResponseEntity<Response> updateOwnAccount(@RequestBody UserDto userDto) {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.updateOwnAccount(userDto));
+        Response response = userService.updateOwnAccount(userDto);
+        return ResponseEntity.status(response.getStatus()).body(response);
     }
 
     @DeleteMapping()
     public ResponseEntity<Response> deleteOwnAccount() {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.deleteOwnAccount());
+        Response response = userService.deleteOwnAccount();
+        return ResponseEntity.status(response.getStatus()).body(response);
     }
     @GetMapping("/me")
     public ResponseEntity<Response> getOwnAccountDetails() {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.getOwnAccountDetails());
+        Response response = userService.getOwnAccountDetails();
+        return ResponseEntity.status(response.getStatus()).body(response);
     }
     @GetMapping("/me/bookings")
     public ResponseEntity<Response> getMyBookingHistory() {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.getMyBookingHistory());
+        Response response = userService.getMyBookingHistory();
+        return ResponseEntity.status(response.getStatus()).body(response);
     }
 }
