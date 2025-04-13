@@ -9,7 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/home")
-public class MyController {
+public class MyTestController {
     // This is a test controller to check if the application is running
     @RequestMapping
     public ResponseEntity<String> getList() {
