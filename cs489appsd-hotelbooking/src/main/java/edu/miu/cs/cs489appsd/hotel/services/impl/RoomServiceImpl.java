@@ -4,6 +4,7 @@ import edu.miu.cs.cs489appsd.hotel.dtos.Response;
 import edu.miu.cs.cs489appsd.hotel.dtos.RoomDto;
 import edu.miu.cs.cs489appsd.hotel.entities.Room;
 import edu.miu.cs.cs489appsd.hotel.enums.RoomType;
+import edu.miu.cs.cs489appsd.hotel.exceptions.InvalidBookingStateAndDateException;
 import edu.miu.cs.cs489appsd.hotel.exceptions.NotFoundException;
 import edu.miu.cs.cs489appsd.hotel.repositories.RoomRepository;
 import edu.miu.cs.cs489appsd.hotel.services.RoomService;
@@ -124,17 +125,45 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public Response getAvailableRooms(LocalDate checkInDate, LocalDate checkOutDate, RoomType roomType) {
-        return null;
+        // Validation: Ensure the check-in date is not before today
+        if(checkInDate.isBefore(LocalDate.now())) {
+            throw new InvalidBookingStateAndDateException("Check-in date cannot be before today");
+        }
+        // Validation: Ensure the check-out date is not before check-in date
+        if(checkOutDate.isBefore(checkInDate)) {
+            throw new InvalidBookingStateAndDateException("Check-out date cannot be before check-in date");
+        }
+        // Validation: Ensure the check-out date is not before check-in date
+        if(checkInDate.isEqual(checkOutDate)) {
+            throw new InvalidBookingStateAndDateException("Check-in date cannot be same as check-out date");
+        }
+
+        List<Room> roomList = roomRepository.findAvailableRooms(checkInDate, checkOutDate, roomType);
+        List<RoomDto> roomDtoList = modelMapper.map(roomList, new TypeToken <List<RoomDto>>() {}.getType());
+
+        return Response.builder()
+                .status(200)
+                .message("Available rooms retrieved successfully")
+                .rooms(roomDtoList)
+                .build();
+
     }
 
     @Override
     public List<RoomType> getAllRoomTypes() {
-        return List.of();
+        return roomRepository.getAllRoomTypes();
     }
 
     @Override
-    public Response searchRoom() {
-        return null;
+    public Response searchRoom(String searchParam) {
+        List<Room> roomList = roomRepository.searchRooms(searchParam);
+        List<RoomDto> roomDtoList = modelMapper.map(roomList, new TypeToken <List<RoomDto>>() {}.getType());
+
+        return Response.builder()
+                .status(200)
+                .message("Available rooms retrieved successfully")
+                .rooms(roomDtoList)
+                .build();
     }
 
     private String saveImage(MultipartFile imageFile) {
