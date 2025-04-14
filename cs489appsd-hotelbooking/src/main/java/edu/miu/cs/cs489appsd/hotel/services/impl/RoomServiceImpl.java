@@ -111,10 +111,20 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public Response deleteRoom(Long id) {
-        if (!roomRepository.existsById(id)) {
-            throw new NotFoundException("Room not found");
+        // Step 1: Retrieve the room entity
+        Room room = roomRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Room not found"));
+
+        // Step 2: Delete the image file if it exists
+        if (room.getImageUrl() != null) {
+            String imagePath = IMAGE_DIRECTORY + room.getImageUrl();
+            File imageFile = new File(imagePath);
+            if (imageFile.exists()) {
+                imageFile.delete(); // delete quietly
+            }
         }
 
+        // Step 3: Delete the room from DB
         roomRepository.deleteById(id);
 
         return Response.builder()
