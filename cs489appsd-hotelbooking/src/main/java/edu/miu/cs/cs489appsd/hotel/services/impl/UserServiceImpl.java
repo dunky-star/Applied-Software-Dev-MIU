@@ -76,7 +76,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Response getAllUsers() {
-        List<User> users = userRepository.findAll(Sort.by(Sort.Direction.ASC, "firstName"));
+        List<User> users = userRepository.findAll(Sort.by(Sort.Direction.ASC, "lastName"));
 
         List<UserDto> userDtos = modelMapper.map(users, new TypeToken<List<UserDto>>() {}.getType());
 
