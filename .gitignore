@@ -30,4 +30,5 @@ ehthumbs.db
 
 # Package managers
 node_modules/
-
+# .env variables
+.env
