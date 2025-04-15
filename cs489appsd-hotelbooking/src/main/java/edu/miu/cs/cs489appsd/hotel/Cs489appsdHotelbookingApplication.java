@@ -1,9 +1,4 @@
 package edu.miu.cs.cs489appsd.hotel;
-
-import edu.miu.cs.cs489appsd.hotel.dtos.NotificationDto;
-import edu.miu.cs.cs489appsd.hotel.enums.NotificationType;
-import edu.miu.cs.cs489appsd.hotel.services.NotificationService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -17,8 +12,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableAsync
 public class Cs489appsdHotelbookingApplication implements CommandLineRunner {
 
-	@Autowired
-	private NotificationService notificationService;
+//	@Autowired
+//	private NotificationService notificationService;
 
 
 	public static void main(String[] args) {
@@ -31,13 +26,13 @@ public class Cs489appsdHotelbookingApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		NotificationDto notificationDto = NotificationDto.builder()
-				.type(NotificationType.EMAIL)
-				.recipient("dunkygeoffrey39@gmail.com")
-				.body("I am testing this from a command line 🙂")
-				.subject("Testing Email Sending")
-				.build();
-
-		notificationService.sendEmail(notificationDto);
+//		NotificationDto notificationDto = NotificationDto.builder()
+//				.type(NotificationType.EMAIL)
+//				.recipient("dunkygeoffrey39@gmail.com")
+//				.body("I am testing this from a command line 🙂")
+//				.subject("Testing Email Sending")
+//				.build();
+//
+//		notificationService.sendEmail(notificationDto);
 	}
 }
