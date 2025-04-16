@@ -19,11 +19,14 @@ import edu.miu.cs.cs489appsd.hotel.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -36,7 +39,24 @@ public class BookingServiceImpl implements BookingService {
     private final ModelMapper modelMapper;
     private final UserService userService;
     private final BookingCodeGenerator bookingCodeGenerator;
-    private final BookingService bookingService;
+
+    @Override
+    public Response getAllBookings() {
+        List<Booking> bookingList = bookingRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
+        List<BookingDto> bookingDTOList = modelMapper.map(bookingList, new TypeToken<List<BookingDto>>() {}.getType());
+
+        for (BookingDto bookingDTO: bookingDTOList){
+            bookingDTO.setUser(null);
+            bookingDTO.setRoom(null);
+        }
+
+        return Response.builder()
+                .status(200)
+                .message("success")
+                .bookings(bookingDTOList)
+                .build();
+    }
+
 
     @Override
     public Response createBooking(BookingDto bookingDto) {

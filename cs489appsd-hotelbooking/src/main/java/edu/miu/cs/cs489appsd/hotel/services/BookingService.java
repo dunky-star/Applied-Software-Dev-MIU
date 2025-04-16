@@ -4,6 +4,7 @@ import edu.miu.cs.cs489appsd.hotel.dtos.BookingDto;
 import edu.miu.cs.cs489appsd.hotel.dtos.Response;
 
 public interface BookingService {
+    Response getAllBookings();
     Response createBooking(BookingDto bookingDto);
     Response getBookingByReferenceNo(String bookingReference);
     Response updateBooking(BookingDto bookingDto);
