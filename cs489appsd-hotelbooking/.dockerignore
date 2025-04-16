@@ -1,0 +1,19 @@
+# Maven / Gradle
+target/
+build/
+
+# IntelliJ / Eclipse / VS Code
+.idea/
+*.iml
+*.classpath
+*.project
+*.settings
+.vscode/
+
+# OS / Editor Junk
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
