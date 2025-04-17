@@ -119,7 +119,7 @@ public class BookingServiceImpl implements BookingService {
         notificationService.sendEmail(notificationDTO); // Send the email
 
         return Response.builder()
-                .status(200)
+                .status(201)
                 .message("Booking created successfully")
                 .booking(bookingDto)
                 .build();

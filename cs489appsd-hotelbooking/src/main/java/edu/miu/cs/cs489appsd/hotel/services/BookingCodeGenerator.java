@@ -1,6 +1,7 @@
 package edu.miu.cs.cs489appsd.hotel.services;
 
 import edu.miu.cs.cs489appsd.hotel.entities.BookingReference;
+import edu.miu.cs.cs489appsd.hotel.repositories.BookingReferenceRepository;
 import edu.miu.cs.cs489appsd.hotel.repositories.BookingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class BookingCodeGenerator {
     private final BookingRepository bookingRepository;
+    private final BookingReferenceRepository bookingReferenceRepository;
 
     public String generateBookingReference() {
         String bookingReference;
@@ -43,5 +45,6 @@ public class BookingCodeGenerator {
 
     private void saveBookingReferenceToDatabase(String bookingReference){
         BookingReference newBookingReference = BookingReference.builder().referenceNo(bookingReference).build();
+        bookingReferenceRepository.save(newBookingReference);
     }
 }
