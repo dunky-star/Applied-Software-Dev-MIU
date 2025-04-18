@@ -2,36 +2,46 @@ package edu.miu.cs.cs489appsd.hotel.exceptions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.miu.cs.cs489appsd.hotel.dtos.Response;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.server.authorization.ServerAccessDeniedHandler;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 
 @Component
-@AllArgsConstructor
-public class CustomAccessDenialHandler implements AccessDeniedHandler {
+@RequiredArgsConstructor
+public class CustomAccessDenialHandler implements ServerAccessDeniedHandler {
 
     private final ObjectMapper objectMapper;
 
     @Override
-    public void handle(HttpServletRequest request,
-                       HttpServletResponse response,
-                       AccessDeniedException accessDeniedException) throws IOException, ServletException {
+    public Mono<Void> handle(ServerWebExchange exchange, AccessDeniedException accessDeniedException) {
+        return Mono.defer(() -> {
+            try {
+                // Build the custom error response
+                Response errorResponse = Response.builder()
+                        .status(HttpStatus.FORBIDDEN.value())
+                        .message(accessDeniedException.getMessage())
+                        .build();
 
-        Response errorResponse = Response.builder()
-                .status(HttpStatus.FORBIDDEN.value())
-                .message(accessDeniedException.getMessage())
-                .build();
+                // Serialize response to JSON bytes
+                byte[] responseBytes = objectMapper.writeValueAsBytes(errorResponse);
 
-        response.setContentType("application/json");
-        response.setStatus(HttpStatus.FORBIDDEN.value());
-        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+                // Set response metadata
+                exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+                exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
+                // Write the JSON to response body
+                return exchange.getResponse()
+                        .writeWith(Mono.just(exchange.getResponse()
+                                .bufferFactory()
+                                .wrap(responseBytes)));
+            } catch (Exception e) {
+                return Mono.error(e);
+            }
+        });
     }
 }

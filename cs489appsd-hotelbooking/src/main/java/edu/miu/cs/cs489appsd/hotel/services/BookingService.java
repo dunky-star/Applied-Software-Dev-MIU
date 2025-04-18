@@ -2,10 +2,11 @@ package edu.miu.cs.cs489appsd.hotel.services;
 
 import edu.miu.cs.cs489appsd.hotel.dtos.BookingDto;
 import edu.miu.cs.cs489appsd.hotel.dtos.Response;
+import reactor.core.publisher.Mono;
 
 public interface BookingService {
-    Response getAllBookings();
-    Response createBooking(BookingDto bookingDto);
-    Response getBookingByReferenceNo(String bookingReference);
-    Response updateBooking(BookingDto bookingDto);
+    Mono<Response> getAllBookings();
+    Mono<Response> createBooking(BookingDto bookingDto);
+    Mono<Response> getBookingByReferenceNo(String bookingReference);
+    Mono<Response> updateBooking(BookingDto bookingDto);
 }

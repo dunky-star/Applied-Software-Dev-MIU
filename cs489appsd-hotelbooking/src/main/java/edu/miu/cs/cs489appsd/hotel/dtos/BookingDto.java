@@ -13,12 +13,12 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class BookingDto {
 
     private Long id;
@@ -29,7 +29,7 @@ public class BookingDto {
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
     private BigDecimal totalPrice;
-    private String bookingReference; // Unique reference for the booking
-    private LocalDateTime createdAt; // Date of booking creation
-    private BookingStatus bookingStatus; // e.g.: CONFIRMED, CANCELED, PENDING, CHECKED_IN, CHECKED_OUT
+    private String bookingReference;
+    private LocalDateTime createdAt;
+    private BookingStatus bookingStatus;
 }

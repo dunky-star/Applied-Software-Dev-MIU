@@ -11,21 +11,24 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserDto {
-    private Long id;
-    private String email;
-    @JsonIgnore
-    private String password;
-    private String firstName;
-    private String lastName;
-    private String phoneNumber;
-    private UserRole role; // e.g.: CUSTOMER, ADMIN
-    private Boolean isActive;
-    private LocalDateTime createdAt;
+
+        private Long id;
+        private String email;
+
+        @JsonIgnore
+        private String password;
+
+        private String firstName;
+        private String lastName;
+        private String phoneNumber;
+        private UserRole role;
+        private Boolean isActive;
+        private LocalDateTime createdAt;
 }

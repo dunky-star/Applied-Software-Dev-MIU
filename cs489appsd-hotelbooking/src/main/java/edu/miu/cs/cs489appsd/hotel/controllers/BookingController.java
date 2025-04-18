@@ -7,39 +7,39 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api/v1/bookings")
 @RequiredArgsConstructor
 public class BookingController {
+
     private final BookingService bookingService;
 
     @GetMapping
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<Response> getAllBookings() {
-        Response response = bookingService.getAllBookings();
-        return ResponseEntity.status(response.getStatus()).body(response);
+    public Mono<ResponseEntity<Response>> getAllBookings() {
+        return bookingService.getAllBookings()
+                .map(response -> ResponseEntity.status(response.getStatus()).body(response));
     }
 
     @PostMapping
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('CUSTOMER')")
-    public ResponseEntity<Response> createBooking(@RequestBody BookingDto bookingDto) {
-        Response response = bookingService.createBooking(bookingDto);
-        return ResponseEntity.status(response.getStatus()).body(response);
+    public Mono<ResponseEntity<Response>> createBooking(@RequestBody BookingDto bookingDto) {
+        return bookingService.createBooking(bookingDto)
+                .map(response -> ResponseEntity.status(response.getStatus()).body(response));
     }
 
     @PutMapping
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<Response> updateBooking(@RequestBody BookingDto bookingDto) {
-        Response response = bookingService.updateBooking(bookingDto);
-        return ResponseEntity.status(response.getStatus()).body(response);
+    public Mono<ResponseEntity<Response>> updateBooking(@RequestBody BookingDto bookingDto) {
+        return bookingService.updateBooking(bookingDto)
+                .map(response -> ResponseEntity.status(response.getStatus()).body(response));
     }
-
 
     @GetMapping("/{reference}")
-    public ResponseEntity<Response> findBookingByReferenceNo(@PathVariable String reference) {
-        Response response = bookingService.getBookingByReferenceNo(reference);
-        return ResponseEntity.status(response.getStatus()).body(response);
+    public Mono<ResponseEntity<Response>> findBookingByReferenceNo(@PathVariable String reference) {
+        return bookingService.getBookingByReferenceNo(reference)
+                .map(response -> ResponseEntity.status(response.getStatus()).body(response));
     }
-
 }

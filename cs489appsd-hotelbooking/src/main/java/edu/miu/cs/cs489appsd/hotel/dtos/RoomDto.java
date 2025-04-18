@@ -10,18 +10,19 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class RoomDto {
     private Long id;
     private Integer roomNumber;
     private RoomType roomType;
     private BigDecimal pricePerNight;
     private Integer capacity;
-    private String description; // additional data for the room
-    private String imageUrl; // this will hold the room picture
+    private String description;
+    private String imageUrl;
 }
+

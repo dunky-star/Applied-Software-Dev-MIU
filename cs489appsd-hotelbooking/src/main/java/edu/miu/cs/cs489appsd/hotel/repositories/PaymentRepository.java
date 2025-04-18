@@ -1,7 +1,7 @@
 package edu.miu.cs.cs489appsd.hotel.repositories;
 
 import edu.miu.cs.cs489appsd.hotel.entities.PaymentEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 
-public interface PaymentRepository extends JpaRepository<PaymentEntity, Long> {
+public interface PaymentRepository extends ReactiveCrudRepository<PaymentEntity, Long> {
 }

@@ -1,39 +1,41 @@
 package edu.miu.cs.cs489appsd.hotel.entities;
 
 import edu.miu.cs.cs489appsd.hotel.enums.NotificationType;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
 
-@Entity
+@Table(name = "notifications") // R2DBC table mapping
 @Data
-@Table(name = "notifications")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Notification {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id // R2DBC @Id
     private Long id;
 
     private String subject;
 
-    @NotBlank(message = "recipient is required")
+    @NotBlank(message = "Recipient is required")
     private String recipient;
 
     private String body;
 
+    @Column("booking_reference")
     private String bookingReference;
 
-    @Enumerated(EnumType.STRING)
+    @Column("notification_type")
     private NotificationType notificationType;
 
-    private final LocalDateTime createdAt = LocalDateTime.now();
+    @Column("created_at")
+    private LocalDateTime createdAt;
 }
 

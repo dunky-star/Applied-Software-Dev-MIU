@@ -5,6 +5,7 @@ import edu.miu.cs.cs489appsd.hotel.repositories.BookingReferenceRepository;
 import edu.miu.cs.cs489appsd.hotel.repositories.BookingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.util.Random;
 
@@ -14,20 +15,20 @@ public class BookingCodeGenerator {
     private final BookingRepository bookingRepository;
     private final BookingReferenceRepository bookingReferenceRepository;
 
-    public String generateBookingReference() {
-        String bookingReference;
+    public Mono<String> generateBookingReference() {
+        return generateUniqueBookingReference()
+                .flatMap(this::saveBookingReferenceToDatabase);
+    }
 
-        // keep generating until a unique code is found
-        do {
-            bookingReference = generateRandomAlphaNumericCode(10); //generate code of length 10
-        } while (isBookingReferenceExists(bookingReference)); //check if the code already exists. if it doesn't, exit
+    private Mono<String> generateUniqueBookingReference() {
+        String bookingReference = generateRandomAlphaNumericCode(10);
 
-        saveBookingReferenceToDatabase(bookingReference); //save the code to database
-        return bookingReference;
+        return bookingRepository.findByBookingReference(bookingReference)
+                .flatMap(existing -> generateUniqueBookingReference()) // If exists, generate again
+                .switchIfEmpty(Mono.just(bookingReference));            // If not exists, use it
     }
 
     private String generateRandomAlphaNumericCode(int length) {
-
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         Random random = new Random();
         StringBuilder stringBuilder = new StringBuilder();
@@ -39,12 +40,11 @@ public class BookingCodeGenerator {
         return stringBuilder.toString();
     }
 
-    private boolean isBookingReferenceExists(String bookingReference) {
-        return bookingRepository.findByBookingReference(bookingReference).isPresent();
-    }
-
-    private void saveBookingReferenceToDatabase(String bookingReference){
-        BookingReference newBookingReference = BookingReference.builder().referenceNo(bookingReference).build();
-        bookingReferenceRepository.save(newBookingReference);
+    private Mono<String> saveBookingReferenceToDatabase(String bookingReference) {
+        BookingReference newBookingReference = BookingReference.builder()
+                .referenceNo(bookingReference)
+                .build();
+        return bookingReferenceRepository.save(newBookingReference)
+                .thenReturn(bookingReference);
     }
 }

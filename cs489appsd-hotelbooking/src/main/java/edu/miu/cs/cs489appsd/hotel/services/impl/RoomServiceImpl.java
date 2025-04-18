@@ -12,9 +12,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -34,7 +35,7 @@ public class RoomServiceImpl implements RoomService {
     private static final String IMAGE_DIRECTORY = System.getProperty("user.dir") + "/src/main/resources/static/images/room-images/";
 
     @Override
-    public Response addRoom(RoomDto roomDto, MultipartFile imageFile) {
+    public Mono<Response> addRoom(RoomDto roomDto, MultipartFile imageFile) {
         Room roomToSave = modelMapper.map(roomDto, Room.class);
 
         if (imageFile != null && !imageFile.isEmpty()) {
@@ -42,138 +43,139 @@ public class RoomServiceImpl implements RoomService {
             roomToSave.setImageUrl(imageUrl);
         }
 
-        roomRepository.save(roomToSave);
-
-        return Response.builder()
-                .status(201)
-                .message("Room added successfully")
-                .build();
+        return roomRepository.save(roomToSave)
+                .then(Mono.just(Response.builder()
+                        .status(201)
+                        .message("Room added successfully")
+                        .build()));
     }
 
     @Override
-    public Response updateRoom(RoomDto roomDto, MultipartFile imageFile) {
-        Room existingRoom = roomRepository.findById(roomDto.getId())
-                .orElseThrow(() -> new NotFoundException("Room not found"));
+    public Mono<Response> updateRoom(RoomDto roomDto, MultipartFile imageFile) {
+        return roomRepository.findById(roomDto.getId())
+                .switchIfEmpty(Mono.error(new NotFoundException("Room not found")))
+                .flatMap(existingRoom -> {
+                    if (imageFile != null && !imageFile.isEmpty()) {
+                        String imagePath = saveImage(imageFile);
+                        existingRoom.setImageUrl(imagePath);
+                    }
 
-        if (imageFile != null && !imageFile.isEmpty()) {
-            String imagePath = saveImage(imageFile);
-            existingRoom.setImageUrl(imagePath);
-        }
+                    if (roomDto.getRoomNumber() != null && roomDto.getRoomNumber() >= 0) {
+                        existingRoom.setRoomNumber(roomDto.getRoomNumber());
+                    }
 
-        if (roomDto.getRoomNumber() != null && roomDto.getRoomNumber() >= 0) {
-            existingRoom.setRoomNumber(roomDto.getRoomNumber());
-        }
+                    if (roomDto.getPricePerNight() != null && roomDto.getPricePerNight().compareTo(BigDecimal.ZERO) >= 0) {
+                        existingRoom.setPricePerNight(roomDto.getPricePerNight());
+                    }
 
-        if (roomDto.getPricePerNight() != null && roomDto.getPricePerNight().compareTo(BigDecimal.ZERO) >= 0) {
-            existingRoom.setPricePerNight(roomDto.getPricePerNight());
-        }
+                    if (roomDto.getCapacity() != null && roomDto.getCapacity() > 0) {
+                        existingRoom.setCapacity(roomDto.getCapacity());
+                    }
 
-        if (roomDto.getCapacity() != null && roomDto.getCapacity() > 0) {
-            existingRoom.setCapacity(roomDto.getCapacity());
-        }
+                    if (roomDto.getRoomType() != null) existingRoom.setRoomType(roomDto.getRoomType());
+                    if (roomDto.getDescription() != null) existingRoom.setDescription(roomDto.getDescription());
 
-        if (roomDto.getRoomType() != null) existingRoom.setRoomType(roomDto.getRoomType());
-        if (roomDto.getDescription() != null) existingRoom.setDescription(roomDto.getDescription());
-
-        roomRepository.save(existingRoom);
-        return Response.builder()
-                .status(200)
-                .message("Room added successfully")
-                .build();
-    }
-
-
-    @Override
-    public Response getAllRooms() {
-        List<Room> roomList = roomRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
-        List<RoomDto> roomDtoList = modelMapper.map(roomList, new TypeToken <List<RoomDto>>() {}.getType());
-
-        return Response.builder()
-                .status(200)
-                .message("Rooms retrieved successfully")
-                .rooms(roomDtoList)
-                .build();
+                    return roomRepository.save(existingRoom)
+                            .then(Mono.just(Response.builder()
+                                    .status(200)
+                                    .message("Room updated successfully")
+                                    .build()));
+                });
     }
 
     @Override
-    public Response getRoomById(Long id) {
-        Room room = roomRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Room not found"));
-
-        RoomDto roomDto = modelMapper.map(room, RoomDto.class);
-
-        return Response.builder()
-                .status(200)
-                .message("success")
-                .room(roomDto)
-                .build();
+    public Mono<Response> getAllRooms() {
+        return roomRepository.findAll()
+                .collectList()
+                .map(roomList -> {
+                    List<RoomDto> roomDtoList = modelMapper.map(roomList, new TypeToken<List<RoomDto>>() {}.getType());
+                    return Response.builder()
+                            .status(200)
+                            .message("Rooms retrieved successfully")
+                            .rooms(roomDtoList)
+                            .build();
+                });
     }
 
     @Override
-    public Response deleteRoom(Long id) {
-        // Step 1: Retrieve the room entity
-        Room room = roomRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Room not found"));
-
-        // Step 2: Delete the image file if it exists
-        if (room.getImageUrl() != null) {
-            String imagePath = IMAGE_DIRECTORY + room.getImageUrl();
-            File imageFile = new File(imagePath);
-            if (imageFile.exists()) {
-                imageFile.delete(); // delete quietly
-            }
-        }
-
-        // Step 3: Delete the room from DB
-        roomRepository.deleteById(id);
-
-        return Response.builder()
-                .status(200)
-                .message("Room Deleted Successfully")
-                .build();
+    public Mono<Response> getRoomById(Long id) {
+        return roomRepository.findById(id)
+                .switchIfEmpty(Mono.error(new NotFoundException("Room not found")))
+                .map(room -> {
+                    RoomDto roomDto = modelMapper.map(room, RoomDto.class);
+                    return Response.builder()
+                            .status(200)
+                            .message("Success")
+                            .room(roomDto)
+                            .build();
+                });
     }
 
     @Override
-    public Response getAvailableRooms(LocalDate checkInDate, LocalDate checkOutDate, RoomType roomType) {
-        // Validation: Ensure the check-in date is not before today
-        if(checkInDate.isBefore(LocalDate.now())) {
-            throw new InvalidBookingStateAndDateException("Check-in date cannot be before today");
-        }
-        // Validation: Ensure the check-out date is not before check-in date
-        if(checkOutDate.isBefore(checkInDate)) {
-            throw new InvalidBookingStateAndDateException("Check-out date cannot be before check-in date");
-        }
-        // Validation: Ensure the check-out date is not before check-in date
-        if(checkInDate.isEqual(checkOutDate)) {
-            throw new InvalidBookingStateAndDateException("Check-in date cannot be same as check-out date");
-        }
-
-        List<Room> roomList = roomRepository.findAvailableRooms(checkInDate, checkOutDate, roomType);
-        List<RoomDto> roomDtoList = modelMapper.map(roomList, new TypeToken <List<RoomDto>>() {}.getType());
-
-        return Response.builder()
-                .status(200)
-                .message("Available rooms retrieved successfully")
-                .rooms(roomDtoList)
-                .build();
-
+    public Mono<Response> deleteRoom(Long id) {
+        return roomRepository.findById(id)
+                .switchIfEmpty(Mono.error(new NotFoundException("Room not found")))
+                .flatMap(room -> {
+                    if (room.getImageUrl() != null) {
+                        String imagePath = IMAGE_DIRECTORY + room.getImageUrl();
+                        File imageFile = new File(imagePath);
+                        if (imageFile.exists()) {
+                            imageFile.delete(); // delete quietly
+                        }
+                    }
+                    return roomRepository.deleteById(id)
+                            .then(Mono.just(Response.builder()
+                                    .status(200)
+                                    .message("Room Deleted Successfully")
+                                    .build()));
+                });
     }
 
     @Override
-    public List<RoomType> getAllRoomTypes() {
+    public Mono<Response> getAvailableRooms(LocalDate checkInDate, LocalDate checkOutDate, RoomType roomType) {
+        validateBookingDates(checkInDate, checkOutDate);
+
+        return roomRepository.findAvailableRooms(checkInDate, checkOutDate, roomType)
+                .collectList()
+                .map(roomList -> {
+                    List<RoomDto> roomDtoList = modelMapper.map(roomList, new TypeToken<List<RoomDto>>() {}.getType());
+                    return Response.builder()
+                            .status(200)
+                            .message("Available rooms retrieved successfully")
+                            .rooms(roomDtoList)
+                            .build();
+                });
+    }
+
+    @Override
+    public Flux<RoomType> getAllRoomTypes() {
         return roomRepository.getAllRoomTypes();
     }
 
     @Override
-    public Response searchRoom(String searchParam) {
-        List<Room> roomList = roomRepository.searchRooms(searchParam);
-        List<RoomDto> roomDtoList = modelMapper.map(roomList, new TypeToken <List<RoomDto>>() {}.getType());
+    public Mono<Response> searchRoom(String searchParam) {
+        return roomRepository.searchRooms(searchParam)
+                .collectList()
+                .map(roomList -> {
+                    List<RoomDto> roomDtoList = modelMapper.map(roomList, new TypeToken<List<RoomDto>>() {}.getType());
+                    return Response.builder()
+                            .status(200)
+                            .message("Rooms retrieved successfully")
+                            .rooms(roomDtoList)
+                            .build();
+                });
+    }
 
-        return Response.builder()
-                .status(200)
-                .message("Available rooms retrieved successfully")
-                .rooms(roomDtoList)
-                .build();
+    private void validateBookingDates(LocalDate checkInDate, LocalDate checkOutDate) {
+        if (checkInDate.isBefore(LocalDate.now())) {
+            throw new InvalidBookingStateAndDateException("Check-in date cannot be before today");
+        }
+        if (checkOutDate.isBefore(checkInDate)) {
+            throw new InvalidBookingStateAndDateException("Check-out date cannot be before check-in date");
+        }
+        if (checkInDate.isEqual(checkOutDate)) {
+            throw new InvalidBookingStateAndDateException("Check-in date cannot be the same as check-out date");
+        }
     }
 
     private String saveImage(MultipartFile imageFile) {
@@ -181,18 +183,15 @@ public class RoomServiceImpl implements RoomService {
             throw new IllegalArgumentException("Only images are allowed");
         }
 
-        // Create a directory to store an image if it doesn't exist
         File directory = new File(IMAGE_DIRECTORY);
         if (!directory.exists()) {
             directory.mkdirs();
         }
-        // Generate unique file name for the image
+
         String uniqueFileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
-        // Get the absolute path of the image file
         String imagePath = IMAGE_DIRECTORY + uniqueFileName;
 
         try {
-            // Save the image file to the specified path
             File destinationFile = new File(imagePath);
             imageFile.transferTo(destinationFile);
         } catch (Exception ex) {
@@ -201,6 +200,5 @@ public class RoomServiceImpl implements RoomService {
 
         return uniqueFileName;
     }
-
-
 }
+

@@ -1,65 +1,55 @@
 package edu.miu.cs.cs489appsd.hotel.security;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
-import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
+import reactor.core.publisher.Mono;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 
-import java.io.IOException;
 
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class AuthFilter extends OncePerRequestFilter{
+public class AuthFilter implements WebFilter {
+
     private final JwtUtils jwtUtils;
     private final CustomUserDetailsService customUserDetailsService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
-
-        String token = getTokenFromRequest(request);
+    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+        String token = getTokenFromRequest(exchange);
 
         if (token != null) {
-            String email = jwtUtils.getUsernameFromToken(token);
-            UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
+            try {
+                String email = jwtUtils.getUsernameFromToken(token);
+                return customUserDetailsService.findByUsername(email)
+                        .filter(userDetails -> jwtUtils.isTokenValid(token, userDetails))
+                        .flatMap(userDetails -> {
+                            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                                    userDetails, null, userDetails.getAuthorities());
 
-            if (StringUtils.hasText(email) && jwtUtils.isTokenValid(token, userDetails)) {
-                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
-                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                            return chain.filter(exchange)
+                                    .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication));
+                        })
+                        .switchIfEmpty(chain.filter(exchange));
+            } catch (Exception e) {
+                log.error("Error validating JWT token: {}", e.getMessage());
             }
-
         }
 
-        try {
-            filterChain.doFilter(request, response);
-        } catch (Exception e) {
-            log.error("Error in filter chain: {}", e.getMessage());
-        }
-
+        return chain.filter(exchange);
     }
 
-    private String getTokenFromRequest(HttpServletRequest request) {
-        String tokenWithBearer = request.getHeader("Authorization");
-        if (tokenWithBearer != null && tokenWithBearer.startsWith("Bearer ")) {
-            return tokenWithBearer.substring(7);
+    private String getTokenFromRequest(ServerWebExchange exchange) {
+        String bearer = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+        if (bearer != null && bearer.startsWith("Bearer ")) {
+            return bearer.substring(7);
         }
         return null;
     }
-
 }

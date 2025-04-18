@@ -24,19 +24,19 @@ public class NotificationServiceImpl implements NotificationService {
     public void sendEmail(NotificationDto notificationDto) {
 
         SimpleMailMessage mailSender = new SimpleMailMessage();
-        mailSender.setTo(notificationDto.getRecipient());
-        mailSender.setSubject(notificationDto.getSubject());
-        mailSender.setText(notificationDto.getBody());
+        mailSender.setTo(notificationDto.recipient());
+        mailSender.setSubject(notificationDto.subject());
+        mailSender.setText(notificationDto.body());
 
         javaMailSender.send(mailSender);
 
         // Save to the database
         Notification notificationToSave = Notification.builder()
-                .recipient(notificationDto.getRecipient())
-                .subject(notificationDto.getSubject())
-                .body(notificationDto.getBody())
-                .bookingReference(notificationDto.getBookingReference())
-                .notificationType(notificationDto.getType())
+                .recipient(notificationDto.recipient())
+                .subject(notificationDto.subject())
+                .body(notificationDto.body())
+                .bookingReference(notificationDto.bookingReference())
+                .notificationType(notificationDto.type())
                 .build();
         notificationRepository.save(notificationToSave);
     }

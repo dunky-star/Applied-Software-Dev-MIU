@@ -2,42 +2,42 @@ package edu.miu.cs.cs489appsd.hotel.repositories;
 
 import edu.miu.cs.cs489appsd.hotel.entities.Room;
 import edu.miu.cs.cs489appsd.hotel.enums.RoomType;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import reactor.core.publisher.Flux;
 
 import java.time.LocalDate;
-import java.util.List;
 
-public interface RoomRepository extends JpaRepository<Room, Long> {
+public interface RoomRepository extends ReactiveCrudRepository<Room, Long> {
+
     @Query("""
-        SELECT r FROM Room r
-        WHERE r.id NOT IN (
-            SELECT b.room.id
-            FROM Booking b
-            WHERE :checkInDate <= b.checkOutDate
-              AND :checkOutDate >= b.checkInDate
-              AND b.bookingStatus IN ('BOOKED', 'CHECKED_IN')
+        SELECT * FROM rooms
+        WHERE id NOT IN (
+            SELECT room_id
+            FROM bookings
+            WHERE :checkInDate <= check_out_date
+              AND :checkOutDate >= check_in_date
+              AND booking_status IN ('BOOKED', 'CHECKED_IN')
         )
-        AND (:roomType IS NULL OR r.roomType = :roomType)
+        AND (:roomType IS NULL OR room_type = :roomType)
     """)
-    List<Room> findAvailableRooms(
+    Flux<Room> findAvailableRooms(
             @Param("checkInDate") LocalDate checkInDate,
             @Param("checkOutDate") LocalDate checkOutDate,
             @Param("roomType") RoomType roomType
     );
 
     @Query("""
-    SELECT r FROM Room r
-    WHERE CAST(r.roomNumber AS string) LIKE %:searchParam%
-       OR LOWER(r.roomType) LIKE LOWER(:searchParam)
-       OR CAST(r.pricePerNight AS string) LIKE %:searchParam%
-       OR CAST(r.capacity AS string) LIKE %:searchParam%
-       OR LOWER(r.description) LIKE LOWER(CONCAT('%', :searchParam, '%'))
-""")
-    List<Room> searchRooms(@Param("searchParam") String searchParam);
+        SELECT * FROM rooms
+        WHERE CAST(room_number AS VARCHAR) LIKE CONCAT('%', :searchParam, '%')
+           OR LOWER(room_type) LIKE LOWER(CONCAT('%', :searchParam, '%'))
+           OR CAST(price_per_night AS VARCHAR) LIKE CONCAT('%', :searchParam, '%')
+           OR CAST(capacity AS VARCHAR) LIKE CONCAT('%', :searchParam, '%')
+           OR LOWER(description) LIKE LOWER(CONCAT('%', :searchParam, '%'))
+    """)
+    Flux<Room> searchRooms(@Param("searchParam") String searchParam);
 
-    @Query("SELECT DISTINCT r.roomType FROM Room r")
-    List<RoomType> getAllRoomTypes();
-
+    @Query("SELECT DISTINCT room_type FROM rooms")
+    Flux<RoomType> getAllRoomTypes();
 }

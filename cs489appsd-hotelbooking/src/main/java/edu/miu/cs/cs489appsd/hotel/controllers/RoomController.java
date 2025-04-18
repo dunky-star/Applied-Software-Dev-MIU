@@ -9,9 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/rooms")
@@ -22,7 +23,7 @@ public class RoomController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('ADMIN')") // Only admin can add a rooms
-    public ResponseEntity<Response> addRoom(
+    public Mono<ResponseEntity<Response>> addRoom(
             @ModelAttribute RoomDto roomRequest,
             @RequestParam MultipartFile imageFile
     ) {
@@ -33,13 +34,13 @@ public class RoomController {
                 .capacity(roomRequest.getCapacity())
                 .description(roomRequest.getDescription())
                 .build();
-        Response response = roomService.addRoom(roomDto, imageFile);
-        return ResponseEntity.status(response.getStatus()).body(response);
+        return roomService.addRoom(roomDto, imageFile)
+                .map(response -> ResponseEntity.status(response.getStatus()).body(response));
     }
 
     @PutMapping()
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<Response> updateRoom(
+    public Mono<ResponseEntity<Response>> updateRoom(
             @ModelAttribute RoomDto roomRequest,
             @RequestParam(value = "imageFile", required = false) MultipartFile imageFile
     ) {
@@ -52,49 +53,48 @@ public class RoomController {
                 .description(roomRequest.getDescription())
                 .build();
 
-        Response response = roomService.updateRoom(roomDto, imageFile);
-        return ResponseEntity.status(response.getStatus()).body(response);
+        return roomService.updateRoom(roomDto, imageFile)
+                .map(response -> ResponseEntity.status(response.getStatus()).body(response));
     }
 
     @GetMapping
-    public ResponseEntity<Response> getAllRooms() {
-        Response response = roomService.getAllRooms();
-        return ResponseEntity.status(response.getStatus()).body(response);
+    public Mono<ResponseEntity<Response>> getAllRooms() {
+        return roomService.getAllRooms()
+                .map(response -> ResponseEntity.status(response.getStatus()).body(response));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Response> getRoomById(@PathVariable Long id) {
-        Response response = roomService.getRoomById(id);
-        return ResponseEntity.status(response.getStatus()).body(response);
+    public Mono<ResponseEntity<Response>> getRoomById(@PathVariable Long id) {
+        return roomService.getRoomById(id)
+                .map(response -> ResponseEntity.status(response.getStatus()).body(response));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<Response> deleteRoom(@PathVariable Long id) {
-        Response response = roomService.deleteRoom(id);
-        return ResponseEntity.status(response.getStatus()).body(response);
+    public Mono<ResponseEntity<Response>> deleteRoom(@PathVariable Long id) {
+        return roomService.deleteRoom(id)
+                .map(response -> ResponseEntity.status(response.getStatus()).body(response));
     }
 
     @GetMapping("/available")
-    public ResponseEntity<Response> getAvailableRooms(
+    public Mono<ResponseEntity<Response>> getAvailableRooms(
             @RequestParam LocalDate checkInDate,
             @RequestParam LocalDate checkOutDate,
             @RequestParam(required = false) RoomType roomType
     ) {
-        Response response = roomService.getAvailableRooms(checkInDate, checkOutDate, roomType);
-        return ResponseEntity.status(response.getStatus()).body(response);
+        return roomService.getAvailableRooms(checkInDate, checkOutDate, roomType)
+                .map(response -> ResponseEntity.status(response.getStatus()).body(response));
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Response> searchRoom(@RequestParam String searchParam) {
-        Response response = roomService.searchRoom(searchParam);
-        return ResponseEntity.status(response.getStatus()).body(response);
+    public Mono<ResponseEntity<Response>> searchRoom(@RequestParam String searchParam) {
+        return roomService.searchRoom(searchParam)
+                .map(response -> ResponseEntity.status(response.getStatus()).body(response));
     }
 
     @GetMapping("/types")
-    public ResponseEntity<List<RoomType>> getAllRoomTypes() {
-        List<RoomType> response = roomService.getAllRoomTypes();
-        return ResponseEntity.ok(response);
+    public Flux<RoomType> getAllRoomTypes() {
+        return roomService.getAllRoomTypes();
     }
 
 

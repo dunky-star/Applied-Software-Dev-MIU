@@ -1,23 +1,23 @@
 package edu.miu.cs.cs489appsd.hotel.entities;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
-@Entity
-@Table(name = "booking_references")
+@Table(name = "booking_references") // R2DBC table mapping
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class BookingReference {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id // R2DBC primary key
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column("reference_no") // explicit column mapping
     private String referenceNo;
 }

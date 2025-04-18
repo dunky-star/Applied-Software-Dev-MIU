@@ -1,32 +1,34 @@
 package edu.miu.cs.cs489appsd.hotel.repositories;
 
 import edu.miu.cs.cs489appsd.hotel.entities.Booking;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+
+import org.springframework.data.r2dbc.repository.Query;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 
-public interface BookingRepository extends JpaRepository<Booking, Long> {
-    // Fetch all bookings for a specific user
-    List<Booking> findByUserId(Long userId);
+public interface BookingRepository extends ReactiveCrudRepository<Booking, Long> {
+    // Fetch all bookings for a specific user (reactive version: Flux)
+    Flux<Booking> findByUserId(Long userId);
 
-    Optional<Booking> findByBookingReference(String bookingReference);
+    // Fetch a booking by its bookingReference (Mono, because only one)
+    Mono<Booking> findByBookingReference(String bookingReference);
 
+    // Check if a room is available for the given dates
     @Query("""
-    SELECT CASE WHEN COUNT(b) = 0 THEN true ELSE false END
-    FROM Booking b
-    WHERE b.room.id = :roomId
-      AND :checkInDate <= b.checkOutDate
-      AND :checkOutDate >= b.checkInDate
-      AND b.bookingStatus IN ('BOOKED', 'CHECKED_IN')
-""")
-    boolean isRoomAvailable(
-            @Param("roomId") Long roomId,
-            @Param("checkInDate") LocalDate checkInDate,
-            @Param("checkOutDate") LocalDate checkOutDate
+        SELECT CASE WHEN COUNT(*) = 0 THEN TRUE ELSE FALSE END
+        FROM bookings
+        WHERE room_id = :roomId
+          AND :checkInDate <= check_out_date
+          AND :checkOutDate >= check_in_date
+          AND booking_status IN ('BOOKED', 'CHECKED_IN')
+    """)
+    Mono<Boolean> isRoomAvailable(
+            Long roomId,
+            LocalDate checkInDate,
+            LocalDate checkOutDate
     );
 
 }
