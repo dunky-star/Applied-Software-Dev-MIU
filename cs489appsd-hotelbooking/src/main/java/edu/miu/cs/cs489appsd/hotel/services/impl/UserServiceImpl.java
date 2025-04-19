@@ -7,6 +7,7 @@ import edu.miu.cs.cs489appsd.hotel.exceptions.InvalidCredentialException;
 import edu.miu.cs.cs489appsd.hotel.exceptions.NotFoundException;
 import edu.miu.cs.cs489appsd.hotel.repositories.BookingRepository;
 import edu.miu.cs.cs489appsd.hotel.repositories.UserRepository;
+import edu.miu.cs.cs489appsd.hotel.security.AuthUser;
 import edu.miu.cs.cs489appsd.hotel.security.JwtUtils;
 import edu.miu.cs.cs489appsd.hotel.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -61,7 +62,7 @@ public class UserServiceImpl implements UserService {
                     if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
                         return Mono.error(new InvalidCredentialException("Password doesn't match"));
                     }
-//                    String token = jwtUtils.generateToken(user.getEmail());
+
                     String token = jwtUtils.generateToken(user.getEmail(), user.getRole().name());
                     return Mono.just(Response.builder()
                             .status(200)
@@ -74,15 +75,38 @@ public class UserServiceImpl implements UserService {
                 });
     }
 
+//    @Override
+//    public Mono<Response> getAllUsers() {
+//        return getCurrentLoggedInUser() // first fetch currently logged-in user
+//                .flatMap(currentUser -> {
+//                    if (currentUser.getRole() != UserRole.ADMIN) {
+//                        return Mono.error(new AccessDeniedException("Only ADMINs allowed"));
+//                    }
+//                    return userRepository.findAll()
+//                            .collectList()
+//                            .map(users -> {
+//                                List<UserDto> userDtos = modelMapper.map(users, new TypeToken<List<UserDto>>() {}.getType());
+//                                return Response.builder()
+//                                        .status(200)
+//                                        .message("Users retrieved successfully")
+//                                        .users(userDtos)
+//                                        .build();
+//                            });
+//                });
+//    }
     @Override
     public Mono<Response> getAllUsers() {
-        return getCurrentLoggedInUser() // first fetch currently logged-in user
+        log.info("Attempting to get all users");
+        return getCurrentLoggedInUser()
+                .doOnNext(user -> log.info("Current user role: {}", user.getRole()))
                 .flatMap(currentUser -> {
                     if (currentUser.getRole() != UserRole.ADMIN) {
+                        log.warn("Access denied for non-admin user: {}", currentUser.getEmail());
                         return Mono.error(new AccessDeniedException("Only ADMINs allowed"));
                     }
                     return userRepository.findAll()
                             .collectList()
+                            .doOnNext(users -> log.info("Found {} users", users.size()))
                             .map(users -> {
                                 List<UserDto> userDtos = modelMapper.map(users, new TypeToken<List<UserDto>>() {}.getType());
                                 return Response.builder()
@@ -91,7 +115,8 @@ public class UserServiceImpl implements UserService {
                                         .users(userDtos)
                                         .build();
                             });
-                });
+                })
+                .doOnError(e -> log.error("Error in getAllUsers: {}", e.getMessage()));
     }
 
     @Override
@@ -131,11 +156,23 @@ public class UserServiceImpl implements UserService {
     @Override
     public Mono<User> getCurrentLoggedInUser() {
         return ReactiveSecurityContextHolder.getContext()
-                .map(context -> context.getAuthentication().getName())
-                .flatMap(email -> userRepository.findByEmail(email)
-                        .switchIfEmpty(Mono.error(new NotFoundException("User not found"))));
+                .switchIfEmpty(Mono.error(new NotFoundException("No security context found")))
+                .flatMap(context -> {
+                    if (context.getAuthentication() == null) {
+                        return Mono.error(new NotFoundException("No authentication found"));
+                    }
+                    Object principal = context.getAuthentication().getPrincipal();
+                    if (principal instanceof AuthUser authUser) {
+                        return userRepository.findByEmail(authUser.getUsername())
+                                .switchIfEmpty(Mono.error(new NotFoundException("User not found")));
+                    } else if (principal instanceof String username) {
+                        return userRepository.findByEmail(username)
+                                .switchIfEmpty(Mono.error(new NotFoundException("User not found")));
+                    } else {
+                        return Mono.error(new NotFoundException("Unexpected principal type"));
+                    }
+                });
     }
-
 
     @Override
     public Mono<Response> deleteOwnAccount() {

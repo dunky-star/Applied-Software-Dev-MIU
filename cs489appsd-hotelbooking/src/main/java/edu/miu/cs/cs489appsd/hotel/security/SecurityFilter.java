@@ -29,7 +29,7 @@ public class SecurityFilter {
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
-                .cors(cors -> cors.disable()) // Or configure CORS if needed
+                .cors(ServerHttpSecurity.CorsSpec::disable) // Or configure CORS if needed
                 .exceptionHandling(exception -> exception
                         .accessDeniedHandler(customAccessDenialHandler)
                         .authenticationEntryPoint(customAuthenticationEntryPoint)
@@ -41,6 +41,7 @@ public class SecurityFilter {
                                 "/api/v1/bookings/**",
                                 "/api/v1/home/**"
                         ).permitAll()
+//                        .pathMatchers("/api/v1/users/all").hasAuthority("ADMIN") // Explicit ADMIN protection
                         .anyExchange().authenticated()
                 )
                 .addFilterAt(authFilter, SecurityWebFiltersOrder.AUTHENTICATION)
