@@ -30,6 +30,11 @@
 			<artifactId>spring-boot-starter-webflux</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>io.projectreactor</groupId>
+			<artifactId>reactor-tools</artifactId>
+		</dependency>
+
 		<!-- Reactive PostgreSQL Database -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

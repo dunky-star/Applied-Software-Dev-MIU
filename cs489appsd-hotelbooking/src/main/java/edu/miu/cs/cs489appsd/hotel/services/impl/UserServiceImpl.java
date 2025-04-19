@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -60,7 +61,8 @@ public class UserServiceImpl implements UserService {
                     if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
                         return Mono.error(new InvalidCredentialException("Password doesn't match"));
                     }
-                    String token = jwtUtils.generateToken(user.getEmail());
+//                    String token = jwtUtils.generateToken(user.getEmail());
+                    String token = jwtUtils.generateToken(user.getEmail(), user.getRole().name());
                     return Mono.just(Response.builder()
                             .status(200)
                             .message("User logged in successfully")
@@ -74,15 +76,21 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Mono<Response> getAllUsers() {
-        return userRepository.findAll()
-                .collectList()
-                .map(users -> {
-                    List<UserDto> userDtos = modelMapper.map(users, new TypeToken<List<UserDto>>() {}.getType());
-                    return Response.builder()
-                            .status(200)
-                            .message("Users retrieved successfully")
-                            .users(userDtos)
-                            .build();
+        return getCurrentLoggedInUser() // first fetch currently logged-in user
+                .flatMap(currentUser -> {
+                    if (currentUser.getRole() != UserRole.ADMIN) {
+                        return Mono.error(new AccessDeniedException("Only ADMINs allowed"));
+                    }
+                    return userRepository.findAll()
+                            .collectList()
+                            .map(users -> {
+                                List<UserDto> userDtos = modelMapper.map(users, new TypeToken<List<UserDto>>() {}.getType());
+                                return Response.builder()
+                                        .status(200)
+                                        .message("Users retrieved successfully")
+                                        .users(userDtos)
+                                        .build();
+                            });
                 });
     }
 
@@ -127,6 +135,7 @@ public class UserServiceImpl implements UserService {
                 .flatMap(email -> userRepository.findByEmail(email)
                         .switchIfEmpty(Mono.error(new NotFoundException("User not found"))));
     }
+
 
     @Override
     public Mono<Response> deleteOwnAccount() {

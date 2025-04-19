@@ -29,18 +29,25 @@ public class JwtUtils {
         this.key = new SecretKeySpec(keyByte, "HmacSHA256");
     }
 
-    public String generateToken(String email) {
-        return Jwts.builder()
-                .subject(email)
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME_IN_MILSEC))
-                .signWith(key)
-                .compact();
-    }
+public String generateToken(String email, String role) {
+    return Jwts.builder()
+            .subject(email)
+            .claim("role", role)  // Include role as a claim
+            .issuedAt(new Date(System.currentTimeMillis()))
+            .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME_IN_MILSEC))
+            .signWith(key)
+            .compact();
+}
+
 
     public String getUsernameFromToken(String token){
         return extractClaims(token, Claims::getSubject);
     }
+
+    public String getRoleFromToken(String token) {
+        return extractClaims(token, claims -> claims.get("role", String.class));
+    }
+
 
     private <T> T extractClaims(String token, Function<Claims, T> claimsTFunction){
         return claimsTFunction.apply(Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload());

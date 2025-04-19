@@ -4,13 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-
 
 @Component
 @Slf4j
@@ -27,11 +26,13 @@ public class AuthFilter implements WebFilter {
         if (token != null) {
             try {
                 String email = jwtUtils.getUsernameFromToken(token);
+//                String role = jwtUtils.getRoleFromToken(token);
+
                 return customUserDetailsService.findByUsername(email)
                         .filter(userDetails -> jwtUtils.isTokenValid(token, userDetails))
                         .flatMap(userDetails -> {
-                            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                                    userDetails, null, userDetails.getAuthorities());
+                            UsernamePasswordAuthenticationToken authentication =
+                                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
                             return chain.filter(exchange)
                                     .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication));
@@ -45,6 +46,7 @@ public class AuthFilter implements WebFilter {
         return chain.filter(exchange);
     }
 
+
     private String getTokenFromRequest(ServerWebExchange exchange) {
         String bearer = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if (bearer != null && bearer.startsWith("Bearer ")) {
@@ -53,3 +55,4 @@ public class AuthFilter implements WebFilter {
         return null;
     }
 }
+
