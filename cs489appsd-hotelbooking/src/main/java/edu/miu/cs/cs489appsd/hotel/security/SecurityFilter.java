@@ -6,17 +6,20 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
+import org.springframework.web.server.session.WebSessionManager;
+import reactor.core.publisher.Mono;
 
 @Configuration
 @EnableWebFluxSecurity
-@EnableMethodSecurity
+@EnableReactiveMethodSecurity
 @RequiredArgsConstructor
 @Slf4j
 public class SecurityFilter {
@@ -45,6 +48,7 @@ public class SecurityFilter {
                         .anyExchange().authenticated()
                 )
                 .addFilterAt(authFilter, SecurityWebFiltersOrder.AUTHENTICATION)
+//                .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
                 .build();
     }
 
@@ -52,6 +56,12 @@ public class SecurityFilter {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+//    @Bean
+//    public WebSessionManager webSessionManager() {
+//        // Emulate SessionCreationPolicy.STATELESS
+//        return exchange -> Mono.empty();
+//    }
 
 }
 

@@ -17,7 +17,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/all")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public Mono<ResponseEntity<Response>> getAllUsers() {
         return userService.getAllUsers()
                 .map(response -> ResponseEntity.status(response.getStatus()).body(response));

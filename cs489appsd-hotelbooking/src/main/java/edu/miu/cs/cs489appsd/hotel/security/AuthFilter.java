@@ -29,8 +29,8 @@ public class AuthFilter implements WebFilter {
                 .onErrorResume(e -> {
                     log.error(AUTH_ERROR_MSG, e.getMessage());
                     return chain.filter(exchange);
-                })
-                .switchIfEmpty(chain.filter(exchange));
+                });
+
     }
 
     private Mono<String> extractToken(ServerWebExchange exchange) {
