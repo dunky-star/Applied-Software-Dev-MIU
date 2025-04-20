@@ -13,9 +13,6 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
-import org.springframework.web.server.session.WebSessionManager;
-import reactor.core.publisher.Mono;
 
 @Configuration
 @EnableWebFluxSecurity
@@ -44,11 +41,9 @@ public class SecurityFilter {
                                 "/api/v1/bookings/**",
                                 "/api/v1/home/**"
                         ).permitAll()
-//                        .pathMatchers("/api/v1/users/all").hasAuthority("ADMIN") // Explicit ADMIN protection
                         .anyExchange().authenticated()
                 )
                 .addFilterAt(authFilter, SecurityWebFiltersOrder.AUTHENTICATION)
-//                .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
                 .build();
     }
 
@@ -56,12 +51,6 @@ public class SecurityFilter {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
-//    @Bean
-//    public WebSessionManager webSessionManager() {
-//        // Emulate SessionCreationPolicy.STATELESS
-//        return exchange -> Mono.empty();
-//    }
 
 }
 
