@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: hotel-booking-system
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: postgres-db
+  serviceName: postgres-db
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: hotel-booking
+        app.kubernetes.io/component: database
+        app.kubernetes.io/instance: postgres-db
+    spec:
+      containers:
+        - name: postgresdb
+          image: postgres
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: hotel_booking
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: Cluster@1
+          volumeMounts:
+            - name: postgres-persistent-storage
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-persistent-storage
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 1Gi
+        storageClassName: ""

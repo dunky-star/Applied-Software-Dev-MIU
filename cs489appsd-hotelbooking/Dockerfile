@@ -21,10 +21,10 @@ LABEL description="Production-grade Docker image for Spring Boot Hotel Booking A
 WORKDIR /app
 
 # Copy only the packaged JAR from builder stage
-COPY --from=builder /app/target/*.jar hotel-app.jar
+COPY --from=builder /app/target/*.jar hotel-booking-backend.jar
 
 # Expose app port (update to match your Spring Boot `server.port`)
-EXPOSE 8081
+EXPOSE 5001
 
 # Use JVM best practices for containerized workloads (e.g., memory limits)
 ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=80.0", "-jar", "hotel-app.jar"]

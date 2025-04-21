@@ -1,4 +1,4 @@
-IMAGE_NAME=dunky2012/hotel-booking-app
+IMAGE_NAME=dunky2012/hotel-booking-backend
 IMAGE_TAG=1.0.1
 PLATFORMS=linux/amd64,linux/arm64
 
