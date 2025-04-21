@@ -75,25 +75,7 @@ public class UserServiceImpl implements UserService {
                 });
     }
 
-//    @Override
-//    public Mono<Response> getAllUsers() {
-//        return getCurrentLoggedInUser() // first fetch currently logged-in user
-//                .flatMap(currentUser -> {
-//                    if (currentUser.getRole() != UserRole.ADMIN) {
-//                        return Mono.error(new AccessDeniedException("Only ADMINs allowed"));
-//                    }
-//                    return userRepository.findAll()
-//                            .collectList()
-//                            .map(users -> {
-//                                List<UserDto> userDtos = modelMapper.map(users, new TypeToken<List<UserDto>>() {}.getType());
-//                                return Response.builder()
-//                                        .status(200)
-//                                        .message("Users retrieved successfully")
-//                                        .users(userDtos)
-//                                        .build();
-//                            });
-//                });
-//    }
+
     @Override
     public Mono<Response> getAllUsers() {
         log.info("Attempting to get all users");
