@@ -32,3 +32,4 @@ ehthumbs.db
 node_modules/
 # .env variables
 .env
+.kube/
