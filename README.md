@@ -14,7 +14,7 @@ It focuses on implementing and triggering Continuous Integration (CI) pipelines 
 
 ---
 
-## 🚀 Lab 1a - Trigger CI
+## 🚀 Hotel Booking System - Trigger CI
 
 In these labs:
 - Implemented Java &  Spring Boot.
