@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hotel-booking-backend
+  namespace: hotel-booking-system
+  labels:
+    app.kubernetes.io/name: hotel-booking
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/instance: hotel-booking-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: hotel-booking-api
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: hotel-booking
+        app.kubernetes.io/component: backend
+        app.kubernetes.io/instance: hotel-booking-api
+    spec:
+      containers:
+        - name: hotel-booking-backend
+          image: dunky2012/hotel-booking-backend
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "200m"
+            limits:
+              memory: "256Mi"
+          env:
+            - name: SPRING_R2DBC_URL
+              value: r2dbc:postgresql://postgres-db.hotel-booking-system.svc.cluster.local:5432/hotel_booking
+            - name: DB_USERNAME
+              value: postgres
+            - name: DB_PASSWORD
+              value: Cluster@1
+            - name: EMAIL_USERNAME
+              value: duncangeoffrey20@gmail.com
+            - name: EMAIL_PASSWORD
+              value: kbrx xxtx rcjq hzjn
+            - name: secretJwtString
+              value: Op1y0!@#456_XyzP0pIqz$%45_TuvWxYz890rTq

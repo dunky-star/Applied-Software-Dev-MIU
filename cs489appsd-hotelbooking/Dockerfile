@@ -24,7 +24,7 @@ WORKDIR /app
 COPY --from=builder /app/target/*.jar hotel-booking-backend.jar
 
 # Expose app port (update to match your Spring Boot `server.port`)
-EXPOSE 5001
+EXPOSE 8080
 
 # Use JVM best practices for containerized workloads (e.g., memory limits)
-ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=80.0", "-jar", "hotel-app.jar"]
+ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=80.0", "-jar", "hotel-booking-backend.jar"]
