@@ -33,3 +33,8 @@ node_modules/
 # .env variables
 .env
 .kube/
+# Ignore all Kubernetes Secret YAMLs
+*secret.yaml
+*secrets.yaml
+*secret.yml
+*secrets.yml

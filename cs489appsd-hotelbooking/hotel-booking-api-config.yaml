@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hotel-booking-api-config
+  namespace: hotel-booking-system
+data:
+  SPRING_R2DBC_URL: "r2dbc:postgresql://postgres-db.hotel-booking-system.svc.cluster.local:5432/hotel_booking"

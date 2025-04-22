@@ -30,16 +30,8 @@ spec:
               cpu: "200m"
             limits:
               memory: "256Mi"
-          env:
-            - name: SPRING_R2DBC_URL
-              value: r2dbc:postgresql://postgres-db.hotel-booking-system.svc.cluster.local:5432/hotel_booking
-            - name: DB_USERNAME
-              value: postgres
-            - name: DB_PASSWORD
-              value: Cluster@1
-            - name: EMAIL_USERNAME
-              value: duncangeoffrey20@gmail.com
-            - name: EMAIL_PASSWORD
-              value: kbrx xxtx rcjq hzjn
-            - name: secretJwtString
-              value: Op1y0!@#456_XyzP0pIqz$%45_TuvWxYz890rTq
+          envFrom:
+            - configMapRef:
+                name: hotel-booking-api-config
+            - secretRef:
+                name: hotel-booking-api-secret

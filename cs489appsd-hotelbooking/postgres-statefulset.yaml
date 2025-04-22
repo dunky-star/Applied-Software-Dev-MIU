@@ -21,13 +21,9 @@ spec:
           image: postgres
           ports:
             - containerPort: 5432
-          env:
-            - name: POSTGRES_DB
-              value: hotel_booking
-            - name: POSTGRES_USER
-              value: postgres
-            - name: POSTGRES_PASSWORD
-              value: Cluster@1
+          envFrom:
+            - secretRef:
+                name: hotel-booking-postgres-secret
           volumeMounts:
             - name: postgres-persistent-storage
               mountPath: /var/lib/postgresql/data
