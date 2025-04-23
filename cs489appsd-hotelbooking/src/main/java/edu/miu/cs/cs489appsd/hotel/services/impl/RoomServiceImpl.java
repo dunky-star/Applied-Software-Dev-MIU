@@ -12,16 +12,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -35,53 +36,70 @@ public class RoomServiceImpl implements RoomService {
     private static final String IMAGE_DIRECTORY = System.getProperty("user.dir") + "/src/main/resources/static/images/room-images/";
 
     @Override
-    public Mono<Response> addRoom(RoomDto roomDto, MultipartFile imageFile) {
+    public Mono<Response> addRoom(RoomDto roomDto, FilePart imageFile) {
         Room roomToSave = modelMapper.map(roomDto, Room.class);
 
-        if (imageFile != null && !imageFile.isEmpty()) {
-            String imageUrl = saveImage(imageFile);
-            roomToSave.setImageUrl(imageUrl);
-        }
+        Mono<String> imageSaveMono = (imageFile != null)
+                ? saveImage(imageFile)
+                : Mono.just(""); // empty image path if no file provided
 
-        return roomRepository.save(roomToSave)
-                .then(Mono.just(Response.builder()
+        return imageSaveMono
+                .doOnNext(imageUrl -> {
+                    if (!imageUrl.isBlank()) {
+                        roomToSave.setImageUrl(imageUrl);
+                    }
+                })
+                .then(roomRepository.save(roomToSave))
+                .thenReturn(Response.builder()
                         .status(201)
                         .message("Room added successfully")
-                        .build()));
+                        .build());
     }
 
     @Override
-    public Mono<Response> updateRoom(RoomDto roomDto, MultipartFile imageFile) {
+    public Mono<Response> updateRoom(RoomDto roomDto, FilePart imageFile) {
         return roomRepository.findById(roomDto.getId())
                 .switchIfEmpty(Mono.error(new NotFoundException("Room not found")))
                 .flatMap(existingRoom -> {
-                    if (imageFile != null && !imageFile.isEmpty()) {
-                        String imagePath = saveImage(imageFile);
-                        existingRoom.setImageUrl(imagePath);
-                    }
+                    Mono<String> imageSaveMono = (imageFile != null)
+                            ? saveImage(imageFile)
+                            : Mono.just(""); // no image provided
 
-                    if (roomDto.getRoomNumber() != null && roomDto.getRoomNumber() >= 0) {
-                        existingRoom.setRoomNumber(roomDto.getRoomNumber());
-                    }
+                    return imageSaveMono.flatMap(imageUrl -> {
+                        if (!imageUrl.isBlank()) {
+                            existingRoom.setImageUrl(imageUrl);
+                        }
 
-                    if (roomDto.getPricePerNight() != null && roomDto.getPricePerNight().compareTo(BigDecimal.ZERO) >= 0) {
-                        existingRoom.setPricePerNight(roomDto.getPricePerNight());
-                    }
+                        if (roomDto.getRoomNumber() != null && roomDto.getRoomNumber() >= 0) {
+                            existingRoom.setRoomNumber(roomDto.getRoomNumber());
+                        }
 
-                    if (roomDto.getCapacity() != null && roomDto.getCapacity() > 0) {
-                        existingRoom.setCapacity(roomDto.getCapacity());
-                    }
+                        if (roomDto.getPricePerNight() != null &&
+                                roomDto.getPricePerNight().compareTo(BigDecimal.ZERO) >= 0) {
+                            existingRoom.setPricePerNight(roomDto.getPricePerNight());
+                        }
 
-                    if (roomDto.getRoomType() != null) existingRoom.setRoomType(roomDto.getRoomType());
-                    if (roomDto.getDescription() != null) existingRoom.setDescription(roomDto.getDescription());
+                        if (roomDto.getCapacity() != null && roomDto.getCapacity() > 0) {
+                            existingRoom.setCapacity(roomDto.getCapacity());
+                        }
 
-                    return roomRepository.save(existingRoom)
-                            .then(Mono.just(Response.builder()
-                                    .status(200)
-                                    .message("Room updated successfully")
-                                    .build()));
-                });
+                        if (roomDto.getRoomType() != null) {
+                            existingRoom.setRoomType(roomDto.getRoomType());
+                        }
+
+                        if (roomDto.getDescription() != null) {
+                            existingRoom.setDescription(roomDto.getDescription());
+                        }
+
+                        return roomRepository.save(existingRoom);
+                    });
+                })
+                .thenReturn(Response.builder()
+                        .status(200)
+                        .message("Room updated successfully")
+                        .build());
     }
+
 
     @Override
     public Mono<Response> getAllRooms() {
@@ -178,27 +196,31 @@ public class RoomServiceImpl implements RoomService {
         }
     }
 
-    private String saveImage(MultipartFile imageFile) {
-        if (!Objects.requireNonNull(imageFile.getContentType()).startsWith("image/")) {
-            throw new IllegalArgumentException("Only images are allowed");
+    private Mono<String> saveImage(FilePart imageFile) {
+        String contentType = imageFile.headers().getContentType() != null
+                ? imageFile.headers().getContentType().toString()
+                : "";
+
+        // Validate file type
+        if (!contentType.startsWith("image/")) {
+            return Mono.error(new IllegalArgumentException("Only images are allowed"));
         }
 
+        // Ensure the directory exists
         File directory = new File(IMAGE_DIRECTORY);
         if (!directory.exists()) {
             directory.mkdirs();
         }
 
-        String uniqueFileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
-        String imagePath = IMAGE_DIRECTORY + uniqueFileName;
+        // Generate unique filename and full image path
+        String uniqueFileName = UUID.randomUUID() + "_" + imageFile.filename();
+        Path imagePath = Paths.get(IMAGE_DIRECTORY, uniqueFileName);
 
-        try {
-            File destinationFile = new File(imagePath);
-            imageFile.transferTo(destinationFile);
-        } catch (Exception ex) {
-            throw new IllegalArgumentException(ex.getMessage());
-        }
-
-        return uniqueFileName;
+        // Save the image asynchronously and return the file name
+        return imageFile.transferTo(imagePath)
+                .thenReturn(uniqueFileName)
+                .onErrorMap(ex -> new IllegalArgumentException("Failed to save image: " + ex.getMessage()));
     }
+
 }
 

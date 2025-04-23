@@ -17,21 +17,21 @@ public class BookingController {
     private final BookingService bookingService;
 
     @GetMapping
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public Mono<ResponseEntity<Response>> getAllBookings() {
         return bookingService.getAllBookings()
                 .map(response -> ResponseEntity.status(response.getStatus()).body(response));
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('CUSTOMER')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('CUSTOMER')")
     public Mono<ResponseEntity<Response>> createBooking(@RequestBody BookingDto bookingDto) {
         return bookingService.createBooking(bookingDto)
                 .map(response -> ResponseEntity.status(response.getStatus()).body(response));
     }
 
     @PutMapping
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public Mono<ResponseEntity<Response>> updateBooking(@RequestBody BookingDto bookingDto) {
         return bookingService.updateBooking(bookingDto)
                 .map(response -> ResponseEntity.status(response.getStatus()).body(response));

@@ -5,10 +5,11 @@ import edu.miu.cs.cs489appsd.hotel.dtos.RoomDto;
 import edu.miu.cs.cs489appsd.hotel.enums.RoomType;
 import edu.miu.cs.cs489appsd.hotel.services.RoomService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -21,11 +22,11 @@ public class RoomController {
 
     private final RoomService roomService;
 
-    @PostMapping
-    @PreAuthorize("hasAuthority('ADMIN')") // Only admin can add a rooms
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('ADMIN')")
     public Mono<ResponseEntity<Response>> addRoom(
             @ModelAttribute RoomDto roomRequest,
-            @RequestParam MultipartFile imageFile
+            @RequestPart("imageFile") Mono<FilePart> imageFileMono
     ) {
         RoomDto roomDto = RoomDto.builder()
                 .roomNumber(roomRequest.getRoomNumber())
@@ -34,15 +35,17 @@ public class RoomController {
                 .capacity(roomRequest.getCapacity())
                 .description(roomRequest.getDescription())
                 .build();
-        return roomService.addRoom(roomDto, imageFile)
+
+        return imageFileMono
+                .flatMap(filePart -> roomService.addRoom(roomDto, filePart))
                 .map(response -> ResponseEntity.status(response.getStatus()).body(response));
     }
 
-    @PutMapping()
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('ADMIN')")
     public Mono<ResponseEntity<Response>> updateRoom(
             @ModelAttribute RoomDto roomRequest,
-            @RequestParam(value = "imageFile", required = false) MultipartFile imageFile
+            @RequestPart(value = "imageFile", required = false) Mono<FilePart> imageFileMono
     ) {
         RoomDto roomDto = RoomDto.builder()
                 .id(roomRequest.getId())
@@ -53,9 +56,13 @@ public class RoomController {
                 .description(roomRequest.getDescription())
                 .build();
 
-        return roomService.updateRoom(roomDto, imageFile)
+        // handle the case where image is provided or not
+        return imageFileMono
+                .defaultIfEmpty(null) // makes it optional
+                .flatMap(filePart -> roomService.updateRoom(roomDto, filePart))
                 .map(response -> ResponseEntity.status(response.getStatus()).body(response));
     }
+
 
     @GetMapping
     public Mono<ResponseEntity<Response>> getAllRooms() {
@@ -70,7 +77,7 @@ public class RoomController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public Mono<ResponseEntity<Response>> deleteRoom(@PathVariable Long id) {
         return roomService.deleteRoom(id)
                 .map(response -> ResponseEntity.status(response.getStatus()).body(response));
