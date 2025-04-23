@@ -23,7 +23,7 @@ spec:
         - name: hotel-booking-backend
           image: dunky2012/hotel-booking-backend
           ports:
-            - containerPort: 8080
+            - containerPort: 5001
           resources:
             requests:
               memory: "128Mi"

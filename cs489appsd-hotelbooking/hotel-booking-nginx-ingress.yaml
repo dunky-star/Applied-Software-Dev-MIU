@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hotel-booking-ingress
+  namespace: hotel-booking-system
+  labels:
+    app.kubernetes.io/name: hotel-booking-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: hotel-booking-backend-svc
+                port:
+                  number: 5001
