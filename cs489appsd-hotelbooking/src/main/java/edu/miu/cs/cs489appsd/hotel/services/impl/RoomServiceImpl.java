@@ -167,7 +167,7 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public Flux<RoomType> getAllRoomTypes() {
-        return roomRepository.getAllRoomTypes();
+        return Flux.fromArray(RoomType.values());
     }
 
     @Override

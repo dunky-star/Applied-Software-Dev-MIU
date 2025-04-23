@@ -38,6 +38,4 @@ public interface RoomRepository extends ReactiveCrudRepository<Room, Long> {
     """)
     Flux<Room> searchRooms(@Param("searchParam") String searchParam);
 
-    @Query("SELECT DISTINCT room_type FROM rooms")
-    Flux<RoomType> getAllRoomTypes();
 }
