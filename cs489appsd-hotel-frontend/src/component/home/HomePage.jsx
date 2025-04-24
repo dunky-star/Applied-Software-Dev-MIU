@@ -22,7 +22,7 @@ const HomePage = () => {
                     <div className="overlay"></div>
                     <div className="animated-texts overlay-content">
                         <h1>Welcome to <span className="phegon-color">-*Dunky*- Hotel</span></h1> <br/>
-                        <h3>Step into a escpapades of comfort and care</h3>
+                        <h3>Step into the escapades of comfort and care</h3>
                     </div>
                 </header>
             </section>

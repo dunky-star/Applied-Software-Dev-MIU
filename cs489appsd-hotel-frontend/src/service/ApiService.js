@@ -88,7 +88,7 @@ export default class ApiService {
     }
 
     static async deleteAccount() {
-        const resp = await axios.delete(`${this.BASE_URL}/users/delete`, {
+        const resp = await axios.delete(`${this.BASE_URL}/users`, {
             headers: this.getHeader()
         })
         return resp.data;
@@ -97,7 +97,7 @@ export default class ApiService {
     // ROOMS
 
     static async addRoom(formData) {
-        const resp = await axios.post(`${this.BASE_URL}/rooms/add`, formData, {
+        const resp = await axios.post(`${this.BASE_URL}/rooms`, formData, {
             headers: {
                 ...this.getHeader(),
                 'Content-Type': 'multipart/form-data'
@@ -129,14 +129,14 @@ export default class ApiService {
     }
 
     static async deleteRoom(roomId) {
-        const resp = await axios.delete(`${this.BASE_URL}/rooms/delete/${roomId}`, {
+        const resp = await axios.delete(`${this.BASE_URL}/rooms/${roomId}`, {
             headers: this.getHeader()
         });
         return resp.data;
     }
 
     static async updateRoom(formData) {
-        const resp = await axios.put(`${this.BASE_URL}/rooms/update`, formData, {
+        const resp = await axios.put(`${this.BASE_URL}/rooms`, formData, {
             headers: {
                 ...this.getHeader(),
                 'Content-Type': 'multipart/form-data'
@@ -167,14 +167,14 @@ export default class ApiService {
     }
 
     static async getAllBookings() {
-        const resp = await axios.get(`${this.BASE_URL}/bookings/all`, {
+        const resp = await axios.get(`${this.BASE_URL}/bookings`, {
             headers: this.getHeader()
         });
         return resp.data;
     }
 
     static async updateBooking(booking) {
-        const resp = await axios.put(`${this.BASE_URL}/bookings/update`, booking, {
+        const resp = await axios.put(`${this.BASE_URL}/bookings`, booking, {
             headers: this.getHeader()
         });
         return resp.data;

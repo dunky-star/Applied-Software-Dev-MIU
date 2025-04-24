@@ -29,7 +29,7 @@ public class SecurityFilter {
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
-                .cors(cors -> cors.configurationSource(new CorsConfig().corsConfigurationSource())) // Enable CORS here
+                .cors(cors -> cors.configurationSource(new CorsConfig().corsConfigurationSource())) // Enable CORS
                 .exceptionHandling(exception -> exception
                         .accessDeniedHandler(customAccessDenialHandler)
                         .authenticationEntryPoint(customAuthenticationEntryPoint)
