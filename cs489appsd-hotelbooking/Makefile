@@ -32,7 +32,9 @@ DELETE_SAFE_MANIFESTS=\
   hotel-booking-system-hpa.yaml \
   metallb-config.yaml
 
-.PHONY: build push run all apply delete logs exec describe port-forward restart hpa ingress endpoints get
+DEPLOYMENT_MANIFEST=hotel-booking-api-deployment.yaml
+
+.PHONY: build push run all delete-deployment reapply-deployment apply delete logs exec describe port-forward restart hpa ingress endpoints get
 
 
 # ----------------------
@@ -48,8 +50,6 @@ run:
 	docker run --rm -p 8081:8081 $(IMAGE_NAME):$(IMAGE_TAG)
 
 
-.PHONY:
-
 ## Apply all YAML files
 apply:
 	@echo " Applying manifests to namespace $(NAMESPACE)..."
@@ -64,6 +64,16 @@ delete:
 restart:
 	@echo "Restarting hotel-booking-backend..."
 	$(KUBECTL) rollout restart deployment/hotel-booking-backend -n $(NAMESPACE)
+
+## Delete only the backend deployment
+delete-deployment:
+	@echo "🗑️ Deleting backend deployment only..."
+	$(KUBECTL) delete deployment hotel-booking-backend -n $(NAMESPACE)
+
+## Reapply only the backend deployment (after deleting it)
+reapply-deployment: delete-deployment
+	@echo "🔁 Reapplying backend deployment only..."
+	$(KUBECTL) apply -n $(NAMESPACE) -f $(DEPLOYMENT_MANIFEST)
 
 ## Show pods
 get:
