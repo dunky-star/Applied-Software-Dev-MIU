@@ -33,9 +33,9 @@ const RegisterPage = () => {
         }
         try {
             const resp = await ApiService.registerUser(formData);
-            if (resp.status === 200) {
+            if (resp.status === 201) {
                 setMessage({type: "success", text: "User Registered successfully"})
-                setTimeout(()=> navigate("/login"), 3000);
+                setTimeout(()=> navigate("/login"), 2000);
             }
             
         } catch (error) {
@@ -56,7 +56,7 @@ const RegisterPage = () => {
                     (field) => (
                         <div className="form-group" key={field}>
                             <label>{field.replace(/([A-Z])/g, " $1").trim()}: </label>
-                            <input type={field === "email" ? "email" : "text"} 
+                            <input type={field === "email" ? "email" : field === "password" ? "password" : "text"} 
                             name={field}
                             value={formData[field]}
                             onChange={handleInputChange}

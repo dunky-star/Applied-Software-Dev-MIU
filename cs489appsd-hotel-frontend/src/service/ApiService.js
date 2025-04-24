@@ -3,7 +3,7 @@ import CryptoJS from "crypto-js";
 
 export default class ApiService {
 
-    static BASE_URL = "http://107.175.82.41/api";
+    static BASE_URL = "http://107.175.82.41/api/v1";
     static ENCRYPTION_KEY = "dunky-secrete-key";
 
     //enctyp token using cryptojs
@@ -62,26 +62,26 @@ export default class ApiService {
 
     // AUTH
     static async registerUser(registrationData) {
-        const resp = await axios.post(`${this.BASE_URL}/v1/auth`, registrationData);
+        const resp = await axios.post(`${this.BASE_URL}/auth`, registrationData);
         return resp.data;
     }
 
 
     static async loginUser(loginData) {
-        const resp = await axios.post(`${this.BASE_URL}/v1/auth/sessions`, loginData);
+        const resp = await axios.post(`${this.BASE_URL}/auth/sessions`, loginData);
         return resp.data;
     }
 
     // USERS
     static async myProfile() {
-        const resp = await axios.get(`${this.BASE_URL}/users/account`, {
+        const resp = await axios.get(`${this.BASE_URL}/users/me`, {
             headers: this.getHeader()
         })
         return resp.data;
     }
 
     static async myBookings() {
-        const resp = await axios.get(`${this.BASE_URL}/users/bookings`, {
+        const resp = await axios.get(`${this.BASE_URL}/users/me/bookings`, {
             headers: this.getHeader()
         })
         return resp.data;
@@ -108,13 +108,17 @@ export default class ApiService {
 
     //to get room types
     static async getRoomTypes() {
-        const resp = await axios.get(`${this.BASE_URL}/rooms/types`);
+        const resp = await axios.get(`${this.BASE_URL}/rooms/types`, {
+            headers: this.getHeader()
+        });
         return resp.data;
     }
 
     //to get all rooms
     static async getAllRooms() {
-        const resp = await axios.get(`${this.BASE_URL}/rooms/all`);
+        const resp = await axios.get(`${this.BASE_URL}/rooms`, {
+            headers: this.getHeader()
+        });
         return resp.data;
     }
 
@@ -142,10 +146,7 @@ export default class ApiService {
     }
 
     static async getAvailableRooms(checkInDate, checkOutDate, roomType) {
-
-        console.log("checkInDate from api: " + checkInDate)
-        console.log("checkOutDate from api: " + checkOutDate)
-
+        
         const resp = await axios.get(`${this.BASE_URL}/rooms/available?checkInDate=${checkInDate}&checkOutDate=${checkOutDate}&roomType=${roomType}`);
         return resp.data;
 

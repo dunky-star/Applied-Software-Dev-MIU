@@ -25,8 +25,6 @@ const RoomDetailsPage = () => {
       try {
         const resp = await ApiService.getRoomById(roomId);
         setRoom(resp.room);
-
-        console.log(resp);
       } catch (error) {
         console.log(error);
       }
@@ -129,7 +127,8 @@ const RoomDetailsPage = () => {
               <DayPicker
                 selected={checkInDate}
                 onDayClick={setCheckInDate}
-                disabled={(date) => checkOutDate && date > checkOutDate}
+                // disabled={(date) => checkOutDate && date > checkOutDate}
+                disabled={{ before: new Date() }}
               />
             </div>
 

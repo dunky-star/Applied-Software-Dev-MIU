@@ -44,7 +44,6 @@ const LoginPage = () => {
     } catch (error) {
         setError(error.response?.data?.message || error.message)
         setTimeout(() => setError(""), 5000);
-        
     }
   }
 

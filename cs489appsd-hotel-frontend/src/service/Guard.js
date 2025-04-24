@@ -22,3 +22,12 @@ export const AdminRoute = ({element: Component}) =>{
         <Navigate to="/login" replace state={{from: location}}/>
     )
 }
+
+export const AuthRoute = ({element: Component}) =>{
+    const location = useLocation();
+    if ((location.pathname === "/login" || location.pathname === "/register") && !ApiService.isAthenticated()){
+        return Component
+    } else {
+        return <Navigate to="/home" replace state={{from: location}}/>
+    }
+}

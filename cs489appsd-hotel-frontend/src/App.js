@@ -6,7 +6,7 @@ import LoginPage from "./component/auth/LoginPage";
 import HomePage from "./component/home/HomePage";
 import AllRoomsPage from "./component/booking_rooms/AllRoomsPage";
 import RoomDetailsPage from "./component/booking_rooms/RoomDetailsPage";
-import {AdminRoute, CustomerRoute } from "./service/Guard";
+import {AdminRoute, AuthRoute, CustomerRoute } from "./service/Guard";
 import FindBookingPage from "./component/booking_rooms/FindBookingPage";
 import ProfilePage from "./component/profile/ProfilePage";
 import EditProfilePage from "./component/profile/EditProfile";
@@ -31,8 +31,8 @@ function App() {
           <Navbar/>
           <div className="content">
               <Routes>
-                <Route path="/register" element={<RegisterPage/>}/>
-                <Route path="/login" element={<LoginPage/>}/>
+                <Route path="/register" element={<AuthRoute element={<RegisterPage/>}/>}/>
+                <Route path="/login" element={<AuthRoute element={<LoginPage/>}/>}/>
                 <Route exact path="/home" element={<HomePage/>}/>
                 <Route path="/rooms" element={<AllRoomsPage/>}/>
                 <Route path="/find-booking" element={<FindBookingPage/>}/>
