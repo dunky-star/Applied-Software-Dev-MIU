@@ -19,6 +19,15 @@ spec:
                 port:
                   number: 5001
 
+          # The rule to forward image requests to backend
+          - pathType: Prefix
+            path: "/images"
+            backend:
+              service:
+                name: hotel-booking-backend-svc
+                port:
+                  number: 5001
+
           # Route root / to frontend React app
           - pathType: Prefix
             path: "/"
