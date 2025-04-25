@@ -15,12 +15,12 @@ This project demonstrates a **reactive, scalable hotel booking system**, with an
 
 ## 🎯 Core Use Cases
 
-| Functionality         | Description                                             |
-|----------------------|---------------------------------------------------------|
-| 🔍 Search             | Discover available rooms                                |
-| 🔐 Login & Register  | Authenticate as Customer or Admin                       |
-| 🛏 Book a Room       | Select dates and reserve rooms                          |
-| 🛠 Admin Management  | Admin-only panel to create, update, and delete rooms    |
+| Functionality         | Description                                              |
+|----------------------|----------------------------------------------------------|
+| 🔍 Search             | Discover available rooms                                 |
+| 🔐 Login & Register  | Authenticate as Customer or Admin                        |
+| 🛏 Book a Room       | Select dates and reserve rooms                           |
+| 🛠 Admin Management  | Admin-only panel to create, update, and delete to manage |
 
 ---
 
