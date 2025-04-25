@@ -27,7 +27,7 @@ This project demonstrates a **reactive, scalable hotel booking system**, with an
 ## 🔐 Roles & Responsibilities
 
 - **Admin**
-    - Manages all endpoints (CRUD rooms)
+    - Manages all endpoints (CRUD)
     - Oversees user authorization
 - **Customer**
     - Registers, logs in
