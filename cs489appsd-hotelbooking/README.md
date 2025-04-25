@@ -8,7 +8,7 @@ Welcome to **Dunky Hotel**, your step into the escapades of comfort and care —
 
 This project demonstrates a **reactive, scalable hotel booking system**, with an emphasis on **cloud-native deployment**. The primary goals were:
 - Mastering **Reactive Programming** with Spring WebFlux.
-- Building production-ready microservices.
+- Building production-ready scalable services with app security in mind.
 - Running in containers with **Kubernetes on Bare Metal (CNCF)**.
 
 ---
