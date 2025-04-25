@@ -3,7 +3,7 @@
 # VARIABLES
 # ----------------------
 IMAGE_NAME=dunky2012/hotel-booking-backend
-IMAGE_TAG=1.0.1
+IMAGE_TAG=latest
 PLATFORMS=linux/amd64,linux/arm64
 
 NAMESPACE=hotel-booking-system

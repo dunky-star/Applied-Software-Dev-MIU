@@ -38,6 +38,7 @@ public class SecurityFilter {
                         .pathMatchers(
                                 "/api/v1/auth/**",
                                 "/api/v1/rooms/**",
+                                "/images/**",
                                 "/api/v1/bookings/**",
                                 "/api/v1/home/**"
                         ).permitAll()

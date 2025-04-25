@@ -10,10 +10,20 @@ spec:
   rules:
     - http:
         paths:
+          # Route /api/... to backend
           - pathType: Prefix
-            path: "/"
+            path: "/api"
             backend:
               service:
                 name: hotel-booking-backend-svc
                 port:
                   number: 5001
+
+          # Route root / to frontend React app
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: hotel-frontend-svc
+                port:
+                  number: 3000

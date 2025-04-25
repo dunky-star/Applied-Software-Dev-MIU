@@ -17,7 +17,10 @@ public class CorsConfig {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
 
         // Allow all origins — change to "http://localhost:3000" in production
-        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000"));
+        corsConfiguration.setAllowedOrigins(List.of(
+                "http://localhost:3000",
+                "http://107.175.82.41:3000")
+        );
 
         // Allowed HTTP methods
         corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));

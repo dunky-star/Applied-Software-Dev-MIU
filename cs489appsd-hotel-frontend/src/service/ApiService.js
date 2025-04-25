@@ -3,8 +3,11 @@ import CryptoJS from "crypto-js";
 
 export default class ApiService {
 
-    static BASE_URL = "http://107.175.82.41/api/v1";
+    // static BASE_URL = "http://107.175.82.41/api/v1";
+    static MAIN_BASE_URL = "http://localhost:5001"
+    static BASE_URL = `${ApiService.MAIN_BASE_URL}/api/v1`;
     static ENCRYPTION_KEY = "dunky-secrete-key";
+    static IMAGE_BASE_URL = `${ApiService.MAIN_BASE_URL}/images/room-images`;
 
     //enctyp token using cryptojs
 

@@ -103,7 +103,7 @@ const RoomDetailsPage = () => {
 
       {/* Room Details */}
       <h2>Room Details</h2>
-      <img src={imageUrl} alt={type} className="room-details-image" />
+      <img src={`${ApiService.IMAGE_BASE_URL}/${imageUrl}`} alt={type} className="room-details-image" />
       <div className="room-details-info">
         <h3>{type}</h3>
         <p>Room Number: {roomNumber}</p>
