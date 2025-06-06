@@ -1,0 +1,4 @@
+apiVersion: v2
+name: hotel-booking-backend
+description: A Helm chart for deploying the Hotel Booking System Backend API
+version: 1.0.0

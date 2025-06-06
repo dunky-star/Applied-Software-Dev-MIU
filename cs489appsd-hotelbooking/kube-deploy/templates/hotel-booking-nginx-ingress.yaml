@@ -2,7 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: hotel-booking-ingress
-  namespace: hotel-booking-system
+  namespace: {{.Values.microservice.namespace}}
   labels:
     app.kubernetes.io/name: hotel-booking-ingress
 spec:
@@ -17,7 +17,7 @@ spec:
               service:
                 name: hotel-booking-backend-svc
                 port:
-                  number: 5001
+                  number: {{.Values.workload.port}}
 
           # The rule to forward image requests to backend
           - pathType: Prefix
@@ -26,7 +26,7 @@ spec:
               service:
                 name: hotel-booking-backend-svc
                 port:
-                  number: 5001
+                  number: {{.Values.workload.port}}
 
           # Route root / to frontend React app
           - pathType: Prefix

@@ -1,0 +1,7 @@
+package edu.miu.cs.cs489appsd.hotel.exceptions;
+
+public class InvalidCredentialException extends RuntimeException {
+    public InvalidCredentialException(String message) {
+        super(message);
+    }
+}

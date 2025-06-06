@@ -1,0 +1,19 @@
+microservice: ## General service details
+  name: hotel-booking-api
+  namespace: hotel-booking-system
+  replicas: 2
+
+workload: ## Container specific configuration
+  image: dunky2012/hotel-booking-backend
+  port: 5001
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  livenessDelay: 15s
+
+env: ## Environment variables
+  SPRING_R2DBC_URL: "r2dbc:postgresql://postgres-db.hotel-booking-system.svc.cluster.local:5432/hotel_booking"

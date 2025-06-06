@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.microservice.name }}
+  namespace: {{ .Values.microservice.namespace }}
+  labels:
+    app.kubernetes.io/name: hotel-booking
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/instance: hotel-booking-api
+spec:
+  replicas: {{.Values.microservice.replicas}}
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Values.microservice.name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: hotel-booking
+        app.kubernetes.io/component: backend
+        app.kubernetes.io/instance: {{ .Values.microservice.name }}
+    spec:
+      containers:
+        - name: hotel-booking-backend
+          image: {{.Values.workload.image}}
+          ports:
+            - containerPort: {{.Values.workload.port}}
+          resources:
+            requests: {{.Values.workload.resources.requests}}
+            limits: {{.Values.workload.resources.limits}}
+          envFrom:
+            - configMapRef:
+                name: {{ .Values.microservice.name }}-config
+            - secretRef:
+                name: {{ .Values.microservice.name }}-secret
